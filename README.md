@@ -17,6 +17,15 @@ ASP.NET Core, EF Core, Azure, SQL Server, Entra ID) and React.
 
 Progress is stored in the browser (`localStorage`). There is no backend.
 
+## Workshops
+
+Teacher-led, hands-on classes that sit alongside the self-paced app. Each one is a
+single page in `public/workshops/`, so the site serves it next to the app.
+
+| Workshop                                                                                                      | Length | Page                                     |
+| ------------------------------------------------------------------------------------------------------------- | ------ | ---------------------------------------- |
+| Starting a React Project: create a Vite app, structure it for a small and a large project, and choose plugins | 45 min | `workshops/react-project-structure.html` |
+
 ## Run it
 
 ```bash

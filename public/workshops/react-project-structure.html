@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Starting a React Project</title>
+<meta name="description" content="A 45-minute class: create a React app with Vite, clean up the template, organize it for a small and a large project, and choose plugins and libraries.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<style>
+/* One reading column. Commands sit in dark terminal panels, files in light
+   editor panels, so "type this" and "put this in a file" never look alike. */
+:root {
+  color-scheme: light;
+  --bg: #f5f6fa; --elev: #ffffff; --sunken: #eaedf4; --fg: #171b2e; --dim: #4d5570; --faint: #6f7690;
+  --line: #d8dce8; --line-strong: #b4bad0; --accent: #2f4fd6; --accent-fg: #ffffff; --accent-soft: #e3e8fb;
+  --react: #0f8a5f; --good: #1a7f37; --good-soft: #dff5e5; --warn: #9a5b12; --warn-soft: #fdeedb; --bad: #c33a3a; --bad-soft: #fbe3e3;
+  --code-bg: #f0f2f8; --term-bg: #1b1f33; --term-fg: #e7e9f3; --term-dim: #9aa3c0;
+  --font-sans: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-display: "IBM Plex Sans Condensed", "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", "Cascadia Code", Consolas, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #121421; --elev: #1a1d2e; --sunken: #0f111c; --fg: #e7e9f3; --dim: #aab0c8; --faint: #8189a6;
+    --line: #2a2f47; --line-strong: #414868; --accent: #8ea0ff; --accent-fg: #0f1330; --accent-soft: #252c4f;
+    --react: #3fd29b; --good: #4ccf7a; --good-soft: #163524; --warn: #e0a24a; --warn-soft: #3a2c14; --bad: #f07070; --bad-soft: #3d1c1c;
+    --code-bg: #161a2b; --term-bg: #0a0c15; --term-fg: #e7e9f3; --term-dim: #8a92b0;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121421; --elev: #1a1d2e; --sunken: #0f111c; --fg: #e7e9f3; --dim: #aab0c8; --faint: #8189a6;
+  --line: #2a2f47; --line-strong: #414868; --accent: #8ea0ff; --accent-fg: #0f1330; --accent-soft: #252c4f;
+  --react: #3fd29b; --good: #4ccf7a; --good-soft: #163524; --warn: #e0a24a; --warn-soft: #3a2c14; --bad: #f07070; --bad-soft: #3d1c1c;
+  --code-bg: #161a2b; --term-bg: #0a0c15; --term-fg: #e7e9f3; --term-dim: #8a92b0;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-sans); font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+a { color: var(--accent); }
+h1, h2, h3 { text-wrap: balance; margin: 0; line-height: 1.2; }
+p { margin: 0; }
+code { font-family: var(--font-mono); font-size: 0.88em; background: var(--code-bg); border: 1px solid var(--line); border-radius: 4px; padding: 0.05em 0.3em; overflow-wrap: anywhere; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.wrap { max-width: 880px; margin: 0 auto; padding-inline: 16px; padding-block: 32px 72px; display: grid; gap: 56px; }
+@media (min-width: 720px) { .wrap { padding-inline: 32px; } }
+.eyebrow { font-family: var(--font-mono); font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+
+/* masthead */
+.mast { display: grid; gap: 14px; }
+.mast h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(2.2rem, 6vw, 3.4rem); letter-spacing: -0.015em; }
+.lede { max-width: 62ch; font-size: 1.08rem; color: var(--dim); }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; margin: 4px 0 0; }
+.facts > div { background: var(--elev); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; min-width: 0; }
+.facts dt { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--faint); }
+.facts dd { margin: 2px 0 0; font-size: 0.95rem; }
+
+/* sections */
+section { display: grid; gap: 16px; scroll-margin-top: 16px; }
+.sec-head { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: end; border-bottom: 2px solid var(--fg); padding-bottom: 10px; }
+.sec-num { font-family: var(--font-display); font-weight: 700; font-size: 2.4rem; line-height: 0.9; color: var(--accent); font-variant-numeric: tabular-nums; }
+.sec-head h2 { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.45rem, 3.2vw, 1.85rem); }
+.sec-time { font-family: var(--font-mono); font-size: 0.78rem; color: var(--faint); margin-top: 4px; }
+h3 { font-size: 1.08rem; margin-top: 8px; }
+.intro { max-width: 68ch; font-size: 1.04rem; }
+.muted { color: var(--dim); max-width: 70ch; }
+ul.plain { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; max-width: 70ch; }
+
+/* tables */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--elev); }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+th, td { text-align: left; vertical-align: top; padding: 9px 14px; border-bottom: 1px solid var(--line); }
+tr:last-child td { border-bottom: 0; }
+th { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--faint); font-weight: 500; background: var(--sunken); }
+td:first-child { white-space: nowrap; }
+td.when { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--dim); }
+td .cmd { font-family: var(--font-mono); font-size: 0.82rem; overflow-wrap: anywhere; }
+td:nth-child(2) { min-width: 24ch; }
+@media (max-width: 600px) {
+  .table-wrap { overflow-x: visible; }
+  table, tbody, tr, td { display: block; width: 100%; }
+  thead { display: none; }
+  tr { padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  tr:last-child { border-bottom: 0; }
+  td { padding: 2px 0; border: 0; white-space: normal !important; min-width: 0 !important; }
+  td:first-child { font-weight: 600; }
+}
+.do { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; white-space: nowrap; }
+.do-keep { background: var(--good-soft); color: var(--good); }
+.do-change { background: var(--accent-soft); color: var(--accent); }
+.do-delete { background: var(--bad-soft); color: var(--bad); }
+.do-ignore { background: var(--sunken); color: var(--dim); }
+
+/* steps: terminal and file panels */
+.term { background: var(--term-bg); color: var(--term-fg); border-radius: 8px; overflow: hidden; min-width: 0; }
+.bar { display: flex; align-items: center; gap: 10px; padding: 6px 8px 6px 12px; }
+.term .bar { border-bottom: 1px solid rgba(255,255,255,0.08); }
+.label { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; flex: 1; min-width: 0; }
+.term .label { color: var(--term-dim); }
+pre { margin: 0; overflow-x: auto; }
+.term pre { padding: 10px 14px 12px; font-family: var(--font-mono); font-size: 0.88rem; line-height: 1.65; }
+.term code, .file pre code { background: none; border: 0; padding: 0; font-size: inherit; overflow-wrap: normal; }
+.copy { border: 1px solid var(--line-strong); background: var(--elev); color: var(--fg); border-radius: 6px; padding: 3px 10px; font: 500 0.78rem var(--font-sans); cursor: pointer; white-space: nowrap; }
+.term .copy { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.18); color: var(--term-fg); }
+.copy.done { background: var(--good); border-color: var(--good); color: var(--elev); }
+.pair { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+.file { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--code-bg); min-width: 0; }
+.file .bar { background: var(--elev); border-bottom: 1px solid var(--line); }
+.file .label { text-transform: none; letter-spacing: 0; font-size: 0.82rem; font-weight: 500; color: var(--fg); }
+.kind { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; white-space: nowrap; }
+.kind-new { background: var(--good-soft); color: var(--good); }
+.kind-replace { background: var(--accent-soft); color: var(--accent); }
+.kind-edit { background: var(--warn-soft); color: var(--warn); }
+.file pre { padding: 12px 14px; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; }
+.qa { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.qa li { background: var(--elev); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; }
+.qa b { font-weight: 600; }
+.note { background: var(--warn-soft); color: var(--fg); border-left: 3px solid var(--warn); border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.92rem; max-width: 72ch; }
+
+/* folder trees */
+.tree { margin: 0; background: var(--elev); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+.tree figcaption { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--react); margin-bottom: 8px; }
+.rows { overflow-x: auto; display: grid; grid-template-columns: max-content minmax(0, 1fr); column-gap: 20px; font-size: 0.86rem; }
+.tn { font-family: var(--font-mono); white-space: pre; }
+.tc { color: var(--dim); font-size: 0.85rem; }
+@media (max-width: 620px) { .rows { grid-template-columns: minmax(0, 1fr); } .tc { padding-left: 4ch; margin-bottom: 2px; } .tc:empty { display: none; } }
+.rules { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; max-width: 72ch; }
+.rules li { display: grid; grid-template-columns: 16px 1fr; gap: 8px; }
+.rules li::before { content: ""; width: 8px; height: 8px; margin-top: 0.62em; border-radius: 2px; background: var(--accent); }
+
+/* diagram */
+.diagram { margin: 0; background: var(--elev); border: 1px solid var(--line); border-radius: 10px; padding: 12px; color: var(--fg); }
+.diagram svg { display: block; width: 100%; max-width: 600px; height: auto; margin: 0 auto; }
+.diagram figcaption { font-size: 0.88rem; color: var(--dim); margin: 8px auto 0; max-width: 600px; }
+.dg-box { fill: var(--elev); stroke: var(--line-strong); stroke-width: 1.2; }
+.dg-label { font-family: var(--font-sans); font-size: 13px; font-weight: 600; fill: currentColor; }
+.dg-sub { font-family: var(--font-mono); font-size: 10.5px; fill: var(--dim); }
+.dg-edge { stroke: currentColor; stroke-width: 1.4; fill: none; }
+.dg-bad { stroke: var(--bad); stroke-width: 1.4; fill: none; stroke-dasharray: 5 4; }
+.dg-elabel { font-family: var(--font-sans); font-size: 11px; fill: var(--dim); }
+.dg-elabel.bad { fill: var(--bad); font-weight: 600; }
+.dg-head { fill: currentColor; }
+.dg-head.bad { fill: var(--bad); }
+
+details.answers { background: var(--elev); border: 1px solid var(--line); border-radius: 8px; padding: 2px 14px; }
+details.answers summary { cursor: pointer; padding: 8px 0; font-weight: 600; }
+details.answers p { padding-bottom: 10px; color: var(--dim); }
+.foot { font-size: 0.82rem; color: var(--faint); border-top: 1px solid var(--line); padding-top: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="mast">
+  <div class="eyebrow">Architecture Lab · Workshop · 45 minutes</div>
+  <h1>Starting a React Project</h1>
+  <p class="lede">Create a React app with Vite, see what the template gives you, and organize it two ways: for a small project and for a large one. Then choose the plugins and libraries each size needs.</p>
+  <dl class="facts">
+    <div><dt>You build</dt><dd>A React + TypeScript app called <code>my-app</code>.</dd></div>
+    <div><dt>You need</dt><dd>Node.js 20.19 or newer (22 LTS is best), Git, VS Code.</dd></div>
+  </dl>
+</header>
+
+<section id="plan" aria-labelledby="plan-h">
+  <h2 id="plan-h" class="eyebrow">Lesson plan</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Minutes</th><th>Part</th><th>What happens</th></tr></thead>
+    <tbody>
+      <tr><td class="when">0–8</td><td><a href="#create">1. Create the project</a></td><td>Run Vite's create command and open the app in the browser.</td></tr>
+      <tr><td class="when">8–15</td><td><a href="#tour">2. Tour and clean up</a></td><td>Learn what each template file does, then delete the demo.</td></tr>
+      <tr><td class="when">15–25</td><td><a href="#small">3. Small project</a></td><td>Create folders by kind of code: components, pages, hooks.</td></tr>
+      <tr><td class="when">25–35</td><td><a href="#large">4. Large project</a></td><td>See the feature-folder layout, its rules and the <code>@/</code> alias.</td></tr>
+      <tr><td class="when">35–45</td><td><a href="#plugins">5. Plugins and libraries</a></td><td>What to install for each size, and why. Exit questions.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="create">
+  <header class="sec-head"><div class="sec-num">1</div><div><h2>Create the project</h2><div class="sec-time">Minutes 0–8</div></div></header>
+  <p class="intro">Vite is the standard way to start a React app. It gives you a dev server that reloads instantly and a production build.</p>
+  <div class="term"><div class="bar"><span class="label">Terminal</span><button type="button" class="copy">Copy</button></div><pre><code>npm create vite@latest my-app -- --template react-ts</code></pre></div>
+  <p class="muted">It asks three questions:</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Question</th><th>Answer</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Ok to proceed?</td><td>Enter</td><td>npm downloads Vite's create tool.</td></tr>
+      <tr><td>Which linter to use?</td><td>Oxlint</td><td>Fast and needs no setup. A large project picks ESLint for its plugins (part 5).</td></tr>
+      <tr><td>Install with npm and start now?</td><td>No</td><td>We look inside before it runs.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="term"><div class="bar"><span class="label">Terminal</span><button type="button" class="copy">Copy</button></div><pre><code>cd my-app
+npm install
+npm run dev</code></pre></div>
+  <p class="muted">Open <a href="http://localhost:5173" target="_blank" rel="noopener">http://localhost:5173</a> to see the demo page. Press Ctrl+C in the terminal to stop it. Then save a starting point and open the folder in VS Code:</p>
+  <div class="term"><div class="bar"><span class="label">Terminal</span><button type="button" class="copy">Copy</button></div><pre><code>git init
+git add -A
+git commit -m "Create project from Vite template"
+code .</code></pre></div>
+</section>
+
+<section id="tour">
+  <header class="sec-head"><div class="sec-num">2</div><div><h2>Tour and clean up</h2><div class="sec-time">Minutes 8–15</div></div></header>
+  <p class="intro">A template gives you two kinds of files: the ones every project needs, and a demo that proves the template works. Keep the first kind, delete the second.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>File</th><th>What it does</th><th>Do</th></tr></thead>
+    <tbody>
+      <tr><td><code>index.html</code></td><td>The single HTML page. Vite loads <code>src/main.tsx</code> from it.</td><td><span class="do do-change">Change title</span></td></tr>
+      <tr><td><code>package.json</code></td><td>Scripts (<code>dev</code>, <code>build</code>, <code>lint</code>, <code>preview</code>) and dependencies.</td><td><span class="do do-keep">Keep</span></td></tr>
+      <tr><td><code>package-lock.json</code></td><td>The exact version of every package, so every machine installs the same.</td><td><span class="do do-keep">Keep, commit</span></td></tr>
+      <tr><td><code>node_modules/</code></td><td>The installed packages. <code>npm install</code> recreates it.</td><td><span class="do do-ignore">Never commit</span></td></tr>
+      <tr><td><code>vite.config.ts</code></td><td>Vite settings. Vite plugins go here; the template adds the React plugin.</td><td><span class="do do-keep">Keep</span></td></tr>
+      <tr><td><code>tsconfig*.json</code></td><td>TypeScript settings: one for app code, one for config files, one that joins them.</td><td><span class="do do-keep">Keep</span></td></tr>
+      <tr><td><code>.oxlintrc.json</code></td><td>Lint rules. Run them with <code>npm run lint</code>.</td><td><span class="do do-keep">Keep</span></td></tr>
+      <tr><td><code>.gitignore</code></td><td>Files Git skips, such as <code>node_modules</code> and <code>dist</code>.</td><td><span class="do do-keep">Keep</span></td></tr>
+      <tr><td><code>README.md</code></td><td>Notes about the template.</td><td><span class="do do-change">Rewrite</span></td></tr>
+      <tr><td><code>public/favicon.svg</code></td><td>The tab icon. Files in <code>public/</code> are served as they are.</td><td><span class="do do-keep">Keep</span></td></tr>
+      <tr><td><code>public/icons.svg</code></td><td>Icons for the demo page.</td><td><span class="do do-delete">Delete</span></td></tr>
+      <tr><td><code>src/main.tsx</code></td><td>Starts React and renders <code>&lt;App /&gt;</code>.</td><td><span class="do do-keep">Keep</span></td></tr>
+      <tr><td><code>src/App.tsx</code></td><td>The demo page: a counter, logos and links.</td><td><span class="do do-change">Replace</span></td></tr>
+      <tr><td><code>src/App.css</code></td><td>Styles for the demo page.</td><td><span class="do do-delete">Delete</span></td></tr>
+      <tr><td><code>src/index.css</code></td><td>Global styles, tuned for the demo.</td><td><span class="do do-change">Trim</span></td></tr>
+      <tr><td><code>src/assets/</code></td><td>The demo's images.</td><td><span class="do do-delete">Delete</span></td></tr>
+    </tbody>
+  </table></div>
+  <h3>Clean up</h3>
+  <p class="muted"><code>git rm</code> deletes the files and records it in Git. It is the same command on Windows, macOS and Linux.</p>
+  <div class="term"><div class="bar"><span class="label">Terminal</span><button type="button" class="copy">Copy</button></div><pre><code>git rm -r src/assets src/App.css public/icons.svg</code></pre></div>
+  <div class="file"><div class="bar"><span class="kind kind-replace">Replace file</span><span class="label">src/App.tsx</span><button type="button" class="copy">Copy</button></div><pre><code>function App() {
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;My App&lt;/h1&gt;
+    &lt;/main&gt;
+  )
+}
+
+export default App</code></pre></div>
+  <div class="file"><div class="bar"><span class="kind kind-replace">Replace file</span><span class="label">src/index.css</span><button type="button" class="copy">Copy</button></div><pre><code>:root {
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}</code></pre></div>
+  <p class="muted">Check that it still builds, then commit. The build runs TypeScript, so it catches any import of a file you deleted.</p>
+  <div class="term"><div class="bar"><span class="label">Terminal</span><button type="button" class="copy">Copy</button></div><pre><code>npm run build
+git add -A
+git commit -m "Remove template demo"</code></pre></div>
+</section>
+
+<section id="small">
+  <header class="sec-head"><div class="sec-num">3</div><div><h2>Structure for a small project</h2><div class="sec-time">Minutes 15–25</div></div></header>
+  <p class="intro">For one or two developers, a handful of screens and one API. Organize by <strong>kind of code</strong>: to find a file, ask what kind of thing it is.</p>
+  <figure class="tree"><figcaption>Small project</figcaption><div class="rows">
+<span class="tn">src/</span><span class="tc"></span>
+<span class="tn">├── components/</span><span class="tc">Reusable UI pieces: Button, CourseCard</span>
+<span class="tn">├── pages/</span><span class="tc">One component per screen: HomePage, CoursesPage</span>
+<span class="tn">├── hooks/</span><span class="tc">Reusable logic: useCourses</span>
+<span class="tn">├── lib/</span><span class="tc">Plain helpers: API calls, formatting</span>
+<span class="tn">├── types/</span><span class="tc">Shared TypeScript types</span>
+<span class="tn">├── App.tsx</span><span class="tc">Picks the page, or holds the router</span>
+<span class="tn">├── main.tsx</span><span class="tc">Starts React</span>
+<span class="tn">└── index.css</span><span class="tc">Global styles</span>
+  </div></figure>
+  <ul class="rules">
+    <li>Imports flow one way: pages use components and hooks, hooks use lib, and everything may use types.</li>
+    <li>Stay flat. Don't nest folders inside these until a folder gets crowded.</li>
+    <li>A component only one page uses can sit next to that page until a second page needs it.</li>
+  </ul>
+  <h3>Create it</h3>
+  <div class="pair">
+    <div class="term"><div class="bar"><span class="label">macOS / Linux</span><button type="button" class="copy">Copy</button></div><pre><code>mkdir src/components src/pages src/hooks src/lib src/types</code></pre></div>
+    <div class="term"><div class="bar"><span class="label">Windows PowerShell</span><button type="button" class="copy">Copy</button></div><pre><code>mkdir src/components, src/pages, src/hooks, src/lib, src/types</code></pre></div>
+  </div>
+  <div class="file"><div class="bar"><span class="kind kind-new">New file</span><span class="label">src/pages/HomePage.tsx</span><button type="button" class="copy">Copy</button></div><pre><code>export function HomePage() {
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;My App&lt;/h1&gt;
+    &lt;/main&gt;
+  )
+}</code></pre></div>
+  <div class="file"><div class="bar"><span class="kind kind-replace">Replace file</span><span class="label">src/App.tsx</span><button type="button" class="copy">Copy</button></div><pre><code>import { HomePage } from './pages/HomePage'
+
+function App() {
+  return &lt;HomePage /&gt;
+}
+
+export default App</code></pre></div>
+  <p class="note">Git doesn't save empty folders. Each folder appears in a commit once it holds a file.</p>
+  <div class="term"><div class="bar"><span class="label">Terminal</span><button type="button" class="copy">Copy</button></div><pre><code>npm run build
+git add -A
+git commit -m "Small project structure"</code></pre></div>
+</section>
+
+<section id="large">
+  <header class="sec-head"><div class="sec-num">4</div><div><h2>Structure for a large project</h2><div class="sec-time">Minutes 25–35</div></div></header>
+  <p class="intro">For several developers or teams and many screens. Organize by <strong>feature</strong>: everything about courses lives in one folder, and folders follow rules about who may import whom.</p>
+  <figure class="tree"><figcaption>Large project</figcaption><div class="rows">
+<span class="tn">src/</span><span class="tc"></span>
+<span class="tn">├── app/</span><span class="tc">The shell: App, router, providers, layout</span>
+<span class="tn">│   ├── App.tsx</span><span class="tc"></span>
+<span class="tn">│   ├── router.tsx</span><span class="tc"></span>
+<span class="tn">│   └── providers.tsx</span><span class="tc"></span>
+<span class="tn">├── features/</span><span class="tc">One folder per business feature</span>
+<span class="tn">│   ├── courses/</span><span class="tc"></span>
+<span class="tn">│   │   ├── api/</span><span class="tc">Requests for this feature</span>
+<span class="tn">│   │   ├── components/</span><span class="tc">UI only this feature uses</span>
+<span class="tn">│   │   ├── hooks/</span><span class="tc"></span>
+<span class="tn">│   │   ├── pages/</span><span class="tc"></span>
+<span class="tn">│   │   ├── types.ts</span><span class="tc"></span>
+<span class="tn">│   │   └── index.ts</span><span class="tc">Public API: the only file others import</span>
+<span class="tn">│   └── students/</span><span class="tc">The next feature, same shape</span>
+<span class="tn">├── shared/</span><span class="tc">Code any feature may use</span>
+<span class="tn">│   ├── ui/</span><span class="tc">Button, Card, Modal</span>
+<span class="tn">│   ├── lib/</span><span class="tc">HTTP client, formatting</span>
+<span class="tn">│   └── hooks/</span><span class="tc"></span>
+<span class="tn">├── main.tsx</span><span class="tc"></span>
+<span class="tn">└── index.css</span><span class="tc"></span>
+  </div></figure>
+  <figure class="diagram">
+    <svg viewBox="0 0 600 300" role="img" aria-label="Allowed imports in the large structure. app imports each feature through its index.ts. Features import shared. features/courses and features/students never import each other.">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dg-head" d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="ah-bad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dg-head bad" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+      <path class="dg-edge" d="M270,68 V96 H120 V122" marker-end="url(#ah)"/><text class="dg-elabel" x="195" y="88" text-anchor="middle">imports index.ts</text>
+      <path class="dg-edge" d="M330,68 V96 H480 V122" marker-end="url(#ah)"/><text class="dg-elabel" x="405" y="88" text-anchor="middle">imports index.ts</text>
+      <path class="dg-edge" d="M120,172 V256 H218" marker-end="url(#ah)"/><text class="dg-elabel" x="170" y="248" text-anchor="middle">imports</text>
+      <path class="dg-edge" d="M480,172 V256 H382" marker-end="url(#ah)"/><text class="dg-elabel" x="430" y="248" text-anchor="middle">imports</text>
+      <path class="dg-bad" d="M202,148 H398" marker-start="url(#ah-bad)" marker-end="url(#ah-bad)"/><text class="dg-elabel bad" x="300" y="140" text-anchor="middle">never</text>
+      <path class="dg-bad" style="stroke-dasharray:none;stroke-width:2" d="M293,141 L307,155 M307,141 L293,155"/>
+      <rect class="dg-box" x="220" y="20" width="160" height="48" rx="6"/><text class="dg-label" x="300" y="41" text-anchor="middle">app/</text><text class="dg-sub" x="300" y="57" text-anchor="middle">App, router, providers</text>
+      <rect class="dg-box" x="40" y="124" width="160" height="48" rx="6"/><text class="dg-label" x="120" y="145" text-anchor="middle">features/courses</text><text class="dg-sub" x="120" y="161" text-anchor="middle">index.ts is the door</text>
+      <rect class="dg-box" x="400" y="124" width="160" height="48" rx="6"/><text class="dg-label" x="480" y="145" text-anchor="middle">features/students</text><text class="dg-sub" x="480" y="161" text-anchor="middle">the next feature</text>
+      <rect class="dg-box" x="220" y="232" width="160" height="48" rx="6"/><text class="dg-label" x="300" y="253" text-anchor="middle">shared/</text><text class="dg-sub" x="300" y="269" text-anchor="middle">ui, lib, hooks</text>
+    </svg>
+    <figcaption>Arrows point at what a folder may import. Features talk to the shell and to shared/, never to each other. Code two features need moves down into shared/.</figcaption>
+  </figure>
+  <ul class="rules">
+    <li>A feature imports from <code>shared/</code>, never from another feature's folders.</li>
+    <li>Code outside a feature imports only its <code>index.ts</code>.</li>
+    <li><code>shared/</code> never imports from <code>features/</code> or <code>app/</code>.</li>
+    <li>A lint rule enforces these, so the structure survives new teammates (part 5).</li>
+  </ul>
+  <h3>Each feature has one public file</h3>
+  <div class="file"><div class="bar"><span class="kind kind-new">Example</span><span class="label">src/features/courses/index.ts</span><button type="button" class="copy">Copy</button></div><pre><code>// The only file code outside this feature may import.
+export { CoursesPage } from './pages/CoursesPage'
+export type { Course } from './types'</code></pre></div>
+  <h3>The <code>@/</code> alias</h3>
+  <p class="muted">Deep folders lead to imports like <code>../../../shared/ui/Card</code>. An alias lets you write <code>@/shared/ui/Card</code> from anywhere. Vite 8 can read the alias straight from TypeScript's settings, so you define it once.</p>
+  <div class="file"><div class="bar"><span class="kind kind-edit">Add inside compilerOptions</span><span class="label">tsconfig.app.json</span><button type="button" class="copy">Copy</button></div><pre><code>"paths": {
+  "@/*": ["./src/*"]
+},</code></pre></div>
+  <div class="file"><div class="bar"><span class="kind kind-replace">Replace file</span><span class="label">vite.config.ts</span><button type="button" class="copy">Copy</button></div><pre><code>import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    // Read the "@/..." alias from tsconfig.app.json
+    tsconfigPaths: true,
+  },
+})</code></pre></div>
+  <h3>When to switch from small to large</h3>
+  <ul class="plain">
+    <li>More than one team, or more than four or five people, work in the app.</li>
+    <li>A folder such as <code>components/</code> passes 15 to 20 files.</li>
+    <li>One change touches four or more folders.</li>
+    <li>People keep hitting merge conflicts in the same files.</li>
+  </ul>
+  <p class="muted">Until then, stay small. It has fewer folders and fewer rules, so changes are faster.</p>
+</section>
+
+<section id="plugins">
+  <header class="sec-head"><div class="sec-num">5</div><div><h2>Plugins and libraries</h2><div class="sec-time">Minutes 35–45</div></div></header>
+  <p class="intro">A <strong>plugin</strong> changes how a tool works: Vite, the linter, or your editor. A <strong>library</strong> is code your app imports. Add each one when you have the problem it solves.</p>
+
+  <h3>Start with these (every project)</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Tool</th><th>What it's for</th><th>Install</th></tr></thead>
+    <tbody>
+      <tr><td><code>@vitejs/plugin-react</code></td><td>The Vite plugin for React: JSX and instant reload.</td><td>Included</td></tr>
+      <tr><td>TypeScript</td><td>Catches mistakes before the browser does.</td><td>Included</td></tr>
+      <tr><td>Oxlint</td><td>Fast linter; the template's default.</td><td>Included</td></tr>
+      <tr><td>Prettier</td><td>Formats code the same way for everyone.</td><td><span class="cmd">npm install -D prettier</span></td></tr>
+      <tr><td>React Router</td><td>Screens with their own URLs, once you have more than one page.</td><td><span class="cmd">npm install react-router</span></td></tr>
+      <tr><td>Vitest + Testing Library</td><td>Tests that reuse your Vite config, written from the user's point of view.</td><td><span class="cmd">npm install -D vitest jsdom @testing-library/react @testing-library/dom @testing-library/jest-dom</span></td></tr>
+      <tr><td>CSS Modules or Tailwind</td><td>Styling. CSS Modules are built into Vite: name a file <code>Button.module.css</code>. Tailwind is a Vite plugin.</td><td><span class="cmd">npm install tailwindcss @tailwindcss/vite</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Add these for a large project</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Tool</th><th>What it's for</th><th>Install</th></tr></thead>
+    <tbody>
+      <tr><td>ESLint + boundaries</td><td>Enforces the feature rules from part 4. ESLint has the bigger plugin ecosystem, so choose ESLint when you create the project.</td><td><span class="cmd">npm install -D eslint-plugin-boundaries</span></td></tr>
+      <tr><td><code>@/</code> alias</td><td>Short imports that don't break when files move.</td><td>Config only (part 4)</td></tr>
+      <tr><td>TanStack Query</td><td>Fetches, caches and refreshes data from your API. Replaces most <code>useEffect</code> + <code>fetch</code> code.</td><td><span class="cmd">npm install @tanstack/react-query</span></td></tr>
+      <tr><td>Zustand</td><td>Small shared state, such as filters or an open panel, when React Context gets awkward.</td><td><span class="cmd">npm install zustand</span></td></tr>
+      <tr><td>React Hook Form + Zod</td><td>Forms and validation rules.</td><td><span class="cmd">npm install react-hook-form zod @hookform/resolvers@5</span></td></tr>
+      <tr><td>MSW</td><td>Fakes your API in tests and during development.</td><td><span class="cmd">npm install -D msw</span></td></tr>
+      <tr><td>Playwright</td><td>End-to-end tests in real browsers.</td><td><span class="cmd">npm init playwright@latest</span></td></tr>
+      <tr><td>Storybook</td><td>Optional. Build and review shared UI components on their own.</td><td><span class="cmd">npm create storybook@latest</span></td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">Install <code>@hookform/resolvers@5</code> for now. Version 6.0.0, released in October 2026, fails to install with npm because of a dependency conflict.</p>
+
+  <h3>Where Vite plugins go</h3>
+  <p class="muted">Every Vite plugin is a function in the <code>plugins</code> list. This is the large project's <code>vite.config.ts</code> with Tailwind added next to React:</p>
+  <div class="file"><div class="bar"><span class="kind kind-replace">Example</span><span class="label">vite.config.ts</span><button type="button" class="copy">Copy</button></div><pre><code>import tailwindcss from '@tailwindcss/vite'
+import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+  resolve: {
+    // Read the "@/..." alias from tsconfig.app.json
+    tsconfigPaths: true,
+  },
+})</code></pre></div>
+  <p class="muted">Tailwind also needs <code>@import "tailwindcss";</code> as the first line of <code>src/index.css</code>.</p>
+
+  <h3>VS Code extensions</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Extension</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>Oxc, or ESLint by Microsoft</td><td>Shows lint errors as you type. Install the one that matches your linter.</td></tr>
+      <tr><td>Prettier – Code formatter</td><td>Formats on save. Turn on the Format On Save setting.</td></tr>
+      <tr><td>Vitest</td><td>Runs and debugs tests from the sidebar.</td></tr>
+      <tr><td>Tailwind CSS IntelliSense</td><td>Completes class names, if you use Tailwind.</td></tr>
+      <tr><td>Playwright Test for VS Code</td><td>Runs end-to-end tests, if you use Playwright.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Exit questions</h3>
+  <ol class="qa">
+    <li><b>1.</b> Two people are building an app with five screens. Which structure do they use, and which two tools from this part do they add first?</li>
+    <li><b>2.</b> Why does other code import <code>CoursesPage</code> from <code>@/features/courses</code> and not from <code>@/features/courses/pages/CoursesPage</code>?</li>
+  </ol>
+  <details class="answers"><summary>Answers for the teacher</summary>
+    <p><b>1.</b> The small structure. Good first additions are Prettier and React Router; Vitest is a strong third. The large structure's rules cost time on every change and protect nothing at this size.</p>
+    <p><b>2.</b> <code>index.ts</code> is the feature's public API. The feature can then move or rename its internal files without breaking anyone, and a lint rule can block every other way in.</p>
+  </details>
+</section>
+
+<p class="foot">Tested in October 2026 with create-vite 9.3.1 (Vite 8.3, React 19.3, TypeScript 6.0) on Node.js 22. Every command and file on this page was run, built and linted; the packages in part 5 were installed together into one project, which then built and passed a Vitest test.</p>
+</div>
+<script>
+(function () {
+  function flash(btn, text) {
+    var old = btn.getAttribute("data-label") || btn.textContent;
+    btn.setAttribute("data-label", old);
+    btn.textContent = text;
+    btn.classList.add("done");
+    setTimeout(function () { btn.textContent = old; btn.classList.remove("done"); }, 1400);
+  }
+  function select(el) {
+    try { var r = document.createRange(); r.selectNodeContents(el); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); } catch (e) {}
+  }
+  document.addEventListener("click", function (ev) {
+    var btn = ev.target.closest ? ev.target.closest("button.copy") : null;
+    if (!btn) return;
+    var code = btn.closest(".term, .file").querySelector("pre code");
+    var text = code.textContent;
+    try {
+      navigator.clipboard.writeText(text).then(function () { flash(btn, "Copied"); }, function () { select(code); flash(btn, "Press Ctrl+C"); });
+    } catch (e) { select(code); flash(btn, "Press Ctrl+C"); }
+  });
+})();
+</script>
+</body>
+</html>
