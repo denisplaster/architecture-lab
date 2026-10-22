@@ -1,0 +1,2009 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Scaffold, Clean, Structure</title>
+<meta name="description" content="A 45-minute hands-on class: create an ASP.NET Core API and a React app from templates, clean them up, and organize the code for small and large projects.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<style>
+/* Layout: a sticky class bar, a slim outline rail and one reading column.
+   Commands sit in dark terminal panels, files in light editor panels, so
+   "type this" and "put this in a file" never look alike. */
+:root {
+  color-scheme: light;
+  --bg: #f5f6fa;
+  --elev: #ffffff;
+  --sunken: #eaedf4;
+  --fg: #171b2e;
+  --dim: #4d5570;
+  --faint: #6f7690;
+  --line: #d8dce8;
+  --line-strong: #b4bad0;
+  --accent: #2f4fd6;
+  --accent-fg: #ffffff;
+  --accent-soft: #e3e8fb;
+  --dotnet: #6250d6;
+  --react: #0f8a5f;
+  --good: #1a7f37;
+  --good-soft: #dff5e5;
+  --warn: #9a5b12;
+  --warn-soft: #fdeedb;
+  --bad: #c33a3a;
+  --bad-soft: #fbe3e3;
+  --code-bg: #f0f2f8;
+  --term-bg: #1b1f33;
+  --term-fg: #e7e9f3;
+  --term-dim: #9aa3c0;
+  --term-prompt: #8ea0ff;
+  --teach-bg: #fff6e5;
+  --teach-line: #e9c98f;
+  --teach-fg: #6b4300;
+  --font-sans:
+    "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-display:
+    "IBM Plex Sans Condensed", "IBM Plex Sans", "Segoe UI", system-ui,
+    sans-serif;
+  --font-mono:
+    "IBM Plex Mono", "Cascadia Code", Consolas, "SFMono-Regular", Menlo,
+    monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #121421;
+    --elev: #1a1d2e;
+    --sunken: #0f111c;
+    --fg: #e7e9f3;
+    --dim: #aab0c8;
+    --faint: #8189a6;
+    --line: #2a2f47;
+    --line-strong: #414868;
+    --accent: #8ea0ff;
+    --accent-fg: #0f1330;
+    --accent-soft: #252c4f;
+    --dotnet: #a69cf0;
+    --react: #3fd29b;
+    --good: #4ccf7a;
+    --good-soft: #163524;
+    --warn: #e0a24a;
+    --warn-soft: #3a2c14;
+    --bad: #f07070;
+    --bad-soft: #3d1c1c;
+    --code-bg: #161a2b;
+    --term-bg: #0a0c15;
+    --term-fg: #e7e9f3;
+    --term-dim: #8a92b0;
+    --term-prompt: #8ea0ff;
+    --teach-bg: #2c2312;
+    --teach-line: #5c4720;
+    --teach-fg: #f0c987;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121421;
+  --elev: #1a1d2e;
+  --sunken: #0f111c;
+  --fg: #e7e9f3;
+  --dim: #aab0c8;
+  --faint: #8189a6;
+  --line: #2a2f47;
+  --line-strong: #414868;
+  --accent: #8ea0ff;
+  --accent-fg: #0f1330;
+  --accent-soft: #252c4f;
+  --dotnet: #a69cf0;
+  --react: #3fd29b;
+  --good: #4ccf7a;
+  --good-soft: #163524;
+  --warn: #e0a24a;
+  --warn-soft: #3a2c14;
+  --bad: #f07070;
+  --bad-soft: #3d1c1c;
+  --code-bg: #161a2b;
+  --term-bg: #0a0c15;
+  --term-fg: #e7e9f3;
+  --term-dim: #8a92b0;
+  --term-prompt: #8ea0ff;
+  --teach-bg: #2c2312;
+  --teach-line: #5c4720;
+  --teach-fg: #f0c987;
+}
+
+/* ---------- visibility switches (track, shell, teacher) ---------- */
+:root[data-track="react"] [data-stack="dotnet"],
+:root[data-track="dotnet"] [data-stack="react"],
+:root[data-track="full"] [data-variant]:not([data-variant~="full"]),
+:root[data-track="react"] [data-variant]:not([data-variant~="react"]),
+:root[data-track="dotnet"] [data-variant]:not([data-variant~="dotnet"]),
+:root[data-shell="ps"] [data-shell-only="sh"],
+:root[data-shell="sh"] [data-shell-only="ps"] {
+  display: none !important;
+}
+.teacher {
+  display: none;
+}
+:root[data-teacher="on"] .teacher {
+  display: block;
+}
+
+/* ---------- base ---------- */
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a {
+  color: var(--accent);
+}
+code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--code-bg);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0.05em 0.3em;
+  overflow-wrap: anywhere;
+}
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+  margin: 0;
+  line-height: 1.2;
+}
+button {
+  font: inherit;
+  color: inherit;
+}
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+.wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding-inline: 16px;
+  padding-block: 28px 64px;
+}
+@media (min-width: 720px) {
+  .wrap {
+    padding-inline: 32px;
+  }
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+/* ---------- masthead ---------- */
+.mast {
+  display: grid;
+  gap: 14px;
+  padding-bottom: 22px;
+}
+.mast h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2.2rem, 6vw, 3.6rem);
+  letter-spacing: -0.015em;
+}
+.mast h1 .comma {
+  color: var(--accent);
+}
+.lede {
+  margin: 0;
+  max-width: 64ch;
+  font-size: 1.08rem;
+  color: var(--dim);
+}
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  margin: 6px 0 0;
+}
+.facts > div {
+  background: var(--elev);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 14px;
+  min-width: 0;
+}
+.facts dt {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.facts dd {
+  margin: 2px 0 0;
+  font-size: 0.95rem;
+}
+
+/* ---------- class bar ---------- */
+.bar {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  padding: 10px 12px;
+  margin: 0 -12px 26px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+@media (max-width: 760px) {
+  .bar {
+    position: static;
+    margin-inline: 0;
+    padding-inline: 0;
+    background: none;
+  }
+}
+.ctl {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.ctl-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.seg-ctl {
+  display: inline-flex;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--elev);
+}
+.seg-ctl button {
+  border: 0;
+  background: none;
+  padding: 5px 11px;
+  font-size: 0.86rem;
+  cursor: pointer;
+  color: var(--dim);
+}
+.seg-ctl button + button {
+  border-left: 1px solid var(--line);
+}
+.seg-ctl button[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--accent-fg);
+  font-weight: 600;
+}
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line-strong);
+  background: var(--elev);
+  border-radius: 999px;
+  padding: 4px 12px 4px 6px;
+  font-size: 0.86rem;
+  cursor: pointer;
+  color: var(--dim);
+}
+.switch .knob {
+  width: 28px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--line-strong);
+  position: relative;
+  transition: background 0.15s;
+}
+.switch .knob::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--elev);
+  transition: transform 0.15s;
+}
+.switch[aria-pressed="true"] {
+  color: var(--teach-fg);
+  border-color: var(--teach-line);
+  background: var(--teach-bg);
+}
+.switch[aria-pressed="true"] .knob {
+  background: var(--warn);
+}
+.switch[aria-pressed="true"] .knob::after {
+  transform: translateX(12px);
+}
+.clock {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 320px;
+  min-width: 0;
+  justify-content: flex-end;
+}
+.clock-btn {
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-fg);
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.clock-btn.running {
+  background: var(--elev);
+  color: var(--accent);
+}
+.clock-reset {
+  border: 0;
+  background: none;
+  color: var(--faint);
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 4px;
+}
+.clock-read {
+  display: grid;
+  min-width: 0;
+  flex: 1 1 auto;
+  max-width: 360px;
+}
+.clock-time {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.clock-time .of {
+  color: var(--faint);
+}
+.clock-now {
+  font-size: 0.78rem;
+  color: var(--dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.clock-now.over {
+  color: var(--bad);
+}
+.clock-track {
+  position: relative;
+  display: flex;
+  gap: 2px;
+  height: 6px;
+  margin-top: 4px;
+}
+.clock-track span {
+  flex: var(--m) 1 0;
+  background: var(--sunken);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+.clock-track span i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--fill, 0%);
+  background: var(--accent);
+}
+
+/* ---------- layout ---------- */
+.layout {
+  display: grid;
+  gap: 32px;
+}
+@media (min-width: 1000px) {
+  .layout {
+    grid-template-columns: 200px minmax(0, 1fr);
+  }
+}
+.outline {
+  display: none;
+}
+@media (min-width: 1000px) {
+  .outline {
+    display: block;
+    position: sticky;
+    top: 84px;
+    align-self: start;
+    font-size: 0.88rem;
+  }
+  .outline ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 2px;
+  }
+  .outline a {
+    display: grid;
+    grid-template-columns: 1.6em 1fr;
+    gap: 4px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    color: var(--dim);
+    text-decoration: none;
+  }
+  .outline a:hover {
+    background: var(--sunken);
+    color: var(--fg);
+  }
+  .outline .n {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--faint);
+    padding-top: 2px;
+  }
+  .outline .w {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--faint);
+    font-variant-numeric: tabular-nums;
+  }
+  .outline li.now a {
+    background: var(--accent-soft);
+    color: var(--fg);
+    font-weight: 600;
+  }
+  .outline .extra {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
+  }
+}
+main {
+  min-width: 0;
+  display: grid;
+  gap: 56px;
+}
+
+/* ---------- teacher panels ---------- */
+.teacher-panel {
+  background: var(--teach-bg);
+  border: 1px solid var(--teach-line);
+  border-radius: 10px;
+  padding: 14px 18px;
+  color: var(--fg);
+}
+.teacher-panel .tlabel {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--teach-fg);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.teacher-panel .tlabel::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--warn);
+}
+.teacher-panel dl {
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+.teacher-panel dt {
+  font-weight: 600;
+  font-size: 0.86rem;
+  color: var(--teach-fg);
+}
+.teacher-panel dd {
+  margin: 0;
+}
+.teacher-panel ul,
+.prep ul {
+  margin: 0;
+  padding-left: 1.1em;
+  display: grid;
+  gap: 4px;
+}
+.prep h2 {
+  font-size: 1.15rem;
+  margin-bottom: 8px;
+}
+.prep li {
+  padding-left: 2px;
+}
+.prep .term {
+  margin-top: 6px;
+}
+
+/* ---------- segments ---------- */
+.seg {
+  display: grid;
+  gap: 18px;
+  scroll-margin-top: 90px;
+}
+.seg-head {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 16px;
+  align-items: end;
+  border-bottom: 2px solid var(--fg);
+  padding-bottom: 10px;
+}
+.seg-num {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 2.6rem;
+  line-height: 0.9;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.seg-head h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.45rem, 3.2vw, 1.9rem);
+}
+.seg-time {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+  margin-top: 4px;
+}
+.seg.now .seg-head {
+  border-bottom-color: var(--accent);
+}
+.seg.now .seg-time::after {
+  content: "  ·  happening now";
+  color: var(--accent);
+  font-weight: 600;
+}
+.intro {
+  margin: 0;
+  max-width: 68ch;
+  font-size: 1.04rem;
+}
+.goals {
+  margin: 0;
+  padding-left: 1.2em;
+  display: grid;
+  gap: 6px;
+  max-width: 68ch;
+}
+
+/* ---------- steps ---------- */
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 18px;
+  counter-reset: step;
+}
+.step {
+  counter-increment: step;
+  background: var(--elev);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 16px 16px;
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+.step-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.tick {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.tick input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.tick .box {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 5px;
+  display: grid;
+  place-items: center;
+  background: var(--elev);
+}
+.tick input:focus-visible + .box {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.tick input:checked + .box {
+  background: var(--good);
+  border-color: var(--good);
+}
+.tick input:checked + .box::after {
+  content: "";
+  width: 9px;
+  height: 5px;
+  border: 2px solid var(--elev);
+  border-top: 0;
+  border-right: 0;
+  transform: rotate(-45deg) translate(1px, -1px);
+}
+.step-title {
+  font-weight: 600;
+  font-size: 1.02rem;
+}
+.step-title::before {
+  content: var(--segn) "." counter(step) "  ";
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.82rem;
+  color: var(--faint);
+  white-space: pre;
+}
+.step:has(input:checked) {
+  border-color: color-mix(in srgb, var(--good) 45%, var(--line));
+}
+.step:has(input:checked) .step-title {
+  color: var(--dim);
+}
+.stack-tag {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 1px 8px;
+}
+.stack-tag[data-s="dotnet"] {
+  color: var(--dotnet);
+}
+.stack-tag[data-s="react"] {
+  color: var(--react);
+}
+.step-text {
+  margin: 0;
+  max-width: 70ch;
+  color: var(--dim);
+}
+.note {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--warn);
+}
+
+/* ---------- terminal + file panels ---------- */
+.term {
+  background: var(--term-bg);
+  color: var(--term-fg);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--term-bg) 70%, var(--line));
+  min-width: 0;
+}
+.term-bar,
+.file-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px 6px 12px;
+}
+.term-bar {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.term-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--term-dim);
+  flex: 1;
+}
+pre {
+  margin: 0;
+  overflow-x: auto;
+}
+.term pre {
+  padding: 10px 14px 12px;
+  font-family: var(--font-mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+}
+.term code,
+.file code.block {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: inherit;
+  overflow-wrap: normal;
+}
+.ln {
+  display: block;
+  white-space: pre;
+}
+:root[data-shell="ps"] .ln::before {
+  content: "PS> ";
+  color: var(--term-prompt);
+}
+:root[data-shell="sh"] .ln::before {
+  content: "$ ";
+  color: var(--term-prompt);
+}
+.copy {
+  border: 1px solid var(--line-strong);
+  background: var(--elev);
+  color: var(--fg);
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.term .copy {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: var(--term-fg);
+}
+.copy.done {
+  background: var(--good);
+  border-color: var(--good);
+  color: var(--elev);
+}
+.files {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.file {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--code-bg);
+  min-width: 0;
+}
+.file-bar {
+  background: var(--elev);
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+@media (max-width: 560px) {
+  .file-bar .file-path {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+.file-path {
+  min-width: 0;
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+.kind {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.kind-new {
+  background: var(--good-soft);
+  color: var(--good);
+}
+.kind-replace {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.kind-edit {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+.file pre {
+  padding: 12px 14px;
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+.edit-body {
+  padding: 8px 14px 10px;
+  display: grid;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+}
+.edit-row {
+  display: grid;
+  grid-template-columns: 1.4em minmax(0, 1fr);
+  align-items: baseline;
+}
+.edit-row code {
+  background: none;
+  border: 0;
+  padding: 0;
+  white-space: pre;
+  overflow-x: auto;
+  display: block;
+}
+.edit-row.old {
+  color: var(--bad);
+}
+.edit-row.old code {
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, var(--bad) 60%, transparent);
+}
+.edit-row.new {
+  color: var(--good);
+}
+.edit-hint {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  color: var(--dim);
+  margin-bottom: 2px;
+}
+
+/* ---------- tour ---------- */
+.tour {
+  display: grid;
+  gap: 14px;
+}
+.tour-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.btn {
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-fg);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn.ghost {
+  background: var(--elev);
+  color: var(--accent);
+}
+.tour-score {
+  font-size: 0.92rem;
+  color: var(--dim);
+}
+.tour-score strong {
+  color: var(--fg);
+}
+.tour-area {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--faint);
+  font-weight: 500;
+  margin: 6px 0 -4px;
+}
+.tour-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.tour-item {
+  background: var(--elev);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: grid;
+  gap: 6px 14px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+@media (max-width: 640px) {
+  .tour-item {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.tour-path code {
+  font-size: 0.86rem;
+  font-weight: 500;
+}
+.tour-what {
+  margin: 2px 0 0;
+  font-size: 0.9rem;
+  color: var(--dim);
+}
+.choices {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.choices button {
+  border: 1px solid var(--line-strong);
+  background: var(--elev);
+  color: var(--dim);
+  border-radius: 999px;
+  padding: 3px 11px;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.choices button[aria-pressed="true"] {
+  background: var(--fg);
+  color: var(--elev);
+  border-color: var(--fg);
+}
+.tour-why {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.9rem;
+  padding-top: 6px;
+  border-top: 1px dashed var(--line);
+  display: none;
+}
+.tour-why b {
+  text-transform: capitalize;
+}
+.tour.revealed .tour-why,
+:root[data-teacher="on"] .tour-why {
+  display: block;
+}
+.tour.revealed .tour-item.right {
+  border-color: color-mix(in srgb, var(--good) 55%, var(--line));
+}
+.tour.revealed .tour-item.wrong {
+  border-color: color-mix(in srgb, var(--bad) 55%, var(--line));
+}
+.tour.revealed .choices button.answer,
+:root[data-teacher="on"] .choices button.answer {
+  box-shadow: inset 0 0 0 2px var(--good);
+  color: var(--good);
+  font-weight: 600;
+}
+.tour.revealed .choices button.answer[aria-pressed="true"],
+:root[data-teacher="on"] .choices button.answer[aria-pressed="true"] {
+  background: var(--good);
+  color: var(--elev);
+}
+
+/* ---------- concept: trees, rules, diagrams ---------- */
+.concept {
+  display: grid;
+  gap: 16px;
+}
+.trees {
+  display: grid;
+  gap: 14px;
+}
+.tree {
+  margin: 0;
+  background: var(--elev);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  min-width: 0;
+}
+.tree figcaption {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.tree[data-stack="dotnet"] figcaption {
+  color: var(--dotnet);
+}
+.tree[data-stack="react"] figcaption {
+  color: var(--react);
+}
+.tree-rows {
+  overflow-x: auto;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: 18px;
+  font-size: 0.84rem;
+}
+@media (max-width: 640px) {
+  .tree-rows {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .tc {
+    padding-left: 4ch;
+    margin-bottom: 2px;
+  }
+  .tc:empty {
+    display: none;
+  }
+}
+.tn {
+  font-family: var(--font-mono);
+  white-space: pre;
+}
+.tc {
+  color: var(--dim);
+  font-size: 0.82rem;
+}
+.rules {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+  max-width: 74ch;
+}
+.rules li {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 8px;
+}
+.rules li::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  margin-top: 0.6em;
+  border-radius: 2px;
+  background: var(--accent);
+}
+.diagrams {
+  display: grid;
+  gap: 14px;
+}
+.diagram {
+  margin: 0;
+  background: var(--elev);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px;
+  color: var(--fg);
+  min-width: 0;
+}
+.diagram svg {
+  display: block;
+  width: 100%;
+  max-width: 640px;
+  height: auto;
+  margin: 0 auto;
+}
+.diagram figcaption {
+  max-width: 640px;
+  margin-inline: auto;
+}
+.diagram figcaption {
+  font-size: 0.86rem;
+  color: var(--dim);
+  margin-top: 8px;
+}
+.dg-box {
+  fill: var(--elev);
+  stroke: var(--line-strong);
+  stroke-width: 1.2;
+}
+.dg-core {
+  fill: var(--accent-soft);
+  stroke: var(--accent);
+  stroke-width: 1.6;
+}
+.dg-label {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  fill: currentColor;
+}
+.dg-sub {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  fill: var(--dim);
+}
+.dg-edge {
+  stroke: currentColor;
+  stroke-width: 1.4;
+  fill: none;
+}
+.dg-edge.dashed {
+  stroke-dasharray: 5 4;
+}
+.dg-edge.bad {
+  stroke: var(--bad);
+  stroke-dasharray: 5 4;
+}
+.dg-elabel {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  fill: var(--dim);
+}
+.dg-elabel.bad {
+  fill: var(--bad);
+  font-weight: 600;
+}
+.dg-head {
+  fill: currentColor;
+}
+.dg-head.bad {
+  fill: var(--bad);
+}
+
+/* ---------- signals, exit ticket, trouble ---------- */
+.signals {
+  background: var(--elev);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 18px;
+}
+.signals h3 {
+  font-size: 1.05rem;
+  margin-bottom: 8px;
+}
+.signals ul {
+  margin: 0 0 8px;
+  padding-left: 1.1em;
+  display: grid;
+  gap: 4px;
+}
+.signals p {
+  margin: 0;
+  color: var(--dim);
+}
+.exit h3 {
+  font-size: 1.05rem;
+  margin-bottom: 8px;
+}
+.exit ol {
+  margin: 0;
+  padding-left: 1.3em;
+  display: grid;
+  gap: 10px;
+}
+.exit .teacher {
+  margin-top: 4px;
+  font-size: 0.92rem;
+  color: var(--teach-fg);
+  background: var(--teach-bg);
+  border-left: 3px solid var(--teach-line);
+  padding: 6px 10px;
+  border-radius: 0 6px 6px 0;
+}
+.trouble {
+  background: var(--elev);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 4px 18px;
+  scroll-margin-top: 90px;
+}
+.trouble summary {
+  cursor: pointer;
+  padding: 12px 0;
+  font-weight: 600;
+}
+.trouble dl {
+  margin: 0 0 14px;
+  display: grid;
+  gap: 10px;
+}
+.trouble dt {
+  font-weight: 600;
+  font-size: 0.94rem;
+}
+.trouble dd {
+  margin: 2px 0 0;
+  color: var(--dim);
+  font-size: 0.92rem;
+}
+.foot {
+  font-size: 0.82rem;
+  color: var(--faint);
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+
+</style>
+<script>(function(){var r=document.documentElement;function g(k,d){try{var v=localStorage.getItem("scs:"+k);return v==null?d:JSON.parse(v)}catch(e){return d}}var p=(navigator.userAgentData&&navigator.userAgentData.platform)||navigator.platform||navigator.userAgent||"";r.setAttribute("data-track",g("track","full"));r.setAttribute("data-shell",g("shell",/win/i.test(p)?"ps":"sh"));r.setAttribute("data-teacher",location.hash==="#teacher"?"on":g("teacher","off"));})();</script>
+</head>
+<body>
+<div class="wrap">
+<header class="mast">
+<div class="eyebrow">Architecture Lab · Workshop 01 · 45-minute class</div>
+<h1>Scaffold<span class="comma">,</span> Clean<span class="comma">,</span> Structure</h1>
+<p class="lede" data-variant="full">Create an ASP.NET Core Web API and a React app from the official templates, strip them to what matters, then organize the same code for a small project and a large one.</p><p class="lede" data-variant="react">Create a React app from the official Vite template, strip it to what matters, then organize the same code for a small project and a large one.</p><p class="lede" data-variant="dotnet">Create an ASP.NET Core Web API from the official template, strip it to what matters, then organize the same code for a small project and a large one.</p>
+<dl class="facts">
+<div><dt>You build</dt><dd data-variant="full">One repo, <code>classroom-app</code>, with an ASP.NET Core API and a React app that lists courses.</dd><dd data-variant="react">One repo, <code>classroom-app</code>, with a React app that lists courses.</dd><dd data-variant="dotnet">One repo, <code>classroom-app</code>, with an ASP.NET Core API that serves courses.</dd></div>
+<div><dt>You leave with</dt><dd>Three Git branches: <code>main</code> (clean template), <code>small</code> and <code>large</code>.</dd></div>
+<div><dt>You need</dt><dd data-variant="full">.NET 10 SDK, Node.js 20.19 or newer, Git, VS Code.</dd><dd data-variant="react">Node.js 20.19 or newer, Git, VS Code.</dd><dd data-variant="dotnet">.NET 10 SDK, Git, VS Code.</dd></div>
+</dl>
+</header>
+<div class="bar" role="region" aria-label="Class settings">
+<div class="ctl"><span class="ctl-label">Track</span><div class="seg-ctl" role="group" aria-label="Track"><button type="button" data-set="track" data-value="full">Full stack</button><button type="button" data-set="track" data-value="react">React only</button><button type="button" data-set="track" data-value="dotnet">.NET only</button></div></div>
+<div class="ctl"><span class="ctl-label">Shell</span><div class="seg-ctl" role="group" aria-label="Shell"><button type="button" data-set="shell" data-value="ps">PowerShell</button><button type="button" data-set="shell" data-value="sh">macOS / Linux</button></div></div>
+<button type="button" class="switch" id="teacher-toggle" aria-pressed="false"><span class="knob" aria-hidden="true"></span>Teacher notes</button>
+<div class="clock"><button type="button" class="clock-btn" id="clock-btn">Start class</button><div class="clock-read"><div class="clock-time"><span id="clock-elapsed">0:00</span> <span class="of">/ 45:00</span></div><div class="clock-now" id="clock-now" aria-live="off">Press Start when class begins</div><div class="clock-track" id="clock-track" aria-hidden="true"></div></div><button type="button" class="clock-reset" id="clock-reset">Reset</button></div>
+</div>
+<div class="layout">
+<nav class="outline" aria-label="Lesson outline"><ol><li data-index="0"><a href="#why"><span class="n">01</span><span>Why structure matters<span class="w" data-win="0">0:00–0:03</span></span></a></li><li data-index="1"><a href="#create"><span class="n">02</span><span>Create the project<span class="w" data-win="1">0:03–0:10</span></span></a></li><li data-index="2"><a href="#tour"><span class="n">03</span><span>Tour the template<span class="w" data-win="2">0:10–0:18</span></span></a></li><li data-index="3"><a href="#clean"><span class="n">04</span><span>Remove what you don't need<span class="w" data-win="3">0:18–0:24</span></span></a></li><li data-index="4"><a href="#small"><span class="n">05</span><span>Structure for a small project<span class="w" data-win="4">0:24–0:33</span></span></a></li><li data-index="5"><a href="#large"><span class="n">06</span><span>Structure for a large project<span class="w" data-win="5">0:33–0:42</span></span></a></li><li data-index="6"><a href="#wrap"><span class="n">07</span><span>Compare and decide<span class="w" data-win="6">0:42–0:45</span></span></a></li></ol><ol class="extra"><li class="teacher"><a href="#prep"><span class="n">·</span><span>Before class</span></a></li><li><a href="#trouble"><span class="n">·</span><span>Troubleshooting</span></a></li></ol></nav>
+<main>
+<section class="teacher teacher-panel prep" id="prep" aria-label="Before class"><div class="tlabel">Teacher notes</div><h2>Before class</h2><ul><li><span data-variant="full">Install on every machine: .NET 10 SDK, Node.js 22 LTS, Git, and VS Code with the C# Dev Kit extension.</span><span data-variant="react">Install on every machine: Node.js 22 LTS, Git, and VS Code.</span><span data-variant="dotnet">Install on every machine: .NET 10 SDK, Git, and VS Code with the C# Dev Kit extension.</span></li><li>Do the whole lesson once yourself. With the copy buttons it takes about 15 minutes.</li><li>Warm the caches on lab machines so the class doesn't wait on downloads: run the create commands once in a scratch folder, then delete the folder.</li><li>Make sure Git knows who is committing:<div class="term"><div class="term-bar"><span class="term-label"><span>Terminal</span></span><button type="button" class="copy">Copy</button></div><pre><code><span class="ln">git config --global user.name &quot;Your Name&quot;</span><span class="ln">git config --global user.email &quot;you@example.com&quot;</span></code></pre></div></li><li data-stack="react">Windows: if npm reports that running scripts is disabled, run this once per machine:<div class="term"><div class="term-bar"><span class="term-label"><span>PowerShell</span></span><button type="button" class="copy">Copy</button></div><pre><code><span class="ln">Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</span></code></pre></div></li><li>Project this page with Teacher notes off. Students open the same link and pick their shell.</li></ul></section>
+<section class="seg" id="why" data-index="0" style="--segn:'1'"><header class="seg-head"><div class="seg-num">01</div><div><h2>Why structure matters</h2><div class="seg-time"><span data-win="0">0:00–0:03</span> · <span data-mins="0">3 min</span></div></div></header><p class="intro">A template gets you a running app in seconds. It is a demo, not a design. Today you create a project from the official templates, read what they give you, remove what you don't need, and then organize the same code twice: once for a small project and once for a large one.</p><ul class="goals"><li data-variant="full">Create an ASP.NET Core Web API and a React app from the terminal, in one Git repository.</li><li data-variant="react">Create a React app with Vite from the terminal, in a Git repository.</li><li data-variant="dotnet">Create an ASP.NET Core Web API from the terminal, in a Git repository.</li><li>Explain what each template file does, and decide whether to keep it, change it or delete it.</li><li>Organize the same code for a small project and a large one, and say when to switch.</li></ul><aside class="teacher teacher-panel" aria-label="Teacher notes"><div class="tlabel">Teacher notes</div><dl><div><dt>Say</dt><dd><ul><li>A template gets you a running app in seconds. It is a demo, not an architecture.</li><li>Today we go from template to a structure we would ship, twice: once small, once large.</li></ul></dd></div><div><dt>Ask</dt><dd>You join a team and the repo has 200 files in one folder called <code>components</code>. Where is the code for enrolling a student? Take two answers, then move on.</dd></div><div><dt>Watch for</dt><dd>Anyone missing a tool pairs with a neighbour now, not at minute ten.</dd></div></dl></aside></section><section class="seg" id="create" data-index="1" style="--segn:'2'"><header class="seg-head"><div class="seg-num">02</div><div><h2>Create the project</h2><div class="seg-time"><span data-win="1">0:03–0:10</span> · <span data-mins="1">7 min</span></div></div></header><p class="intro">Make one folder for the whole repository, then let the templates fill it. Use the copy buttons: every command on this page has been run and tested.</p><aside class="teacher teacher-panel" aria-label="Teacher notes"><div class="tlabel">Teacher notes</div><dl><div><dt>Say</dt><dd><ul><li>Every command works the same in PowerShell and in a macOS or Linux terminal, except creating and deleting folders. Pick your shell at the top of the page.</li><li><code>-n</code> is the name, <code>-o</code> is the folder. The Vite flags answer its questions so the whole class stays in step.</li></ul></dd></div><div><dt>Watch for</dt><dd><ul><li><code>dotnet --version</code> below 10: <code>dotnet new sln</code> makes <code>ClassroomApp.sln</code> instead of <code>.slnx</code>. Everything else still works.</li><li>npm asks <code>Ok to proceed? (y)</code>: press Enter.</li><li>PowerShell says running scripts is disabled: see Troubleshooting at the bottom.</li></ul></dd></div><div><dt>If you're behind</dt><dd>Start the tour while <code>npm install</code> runs. It takes about 30 seconds on a good connection.</dd></div></dl></aside><ol class="steps"><li class="step" id="step-tools"><div class="step-head"><label class="tick"><input type="checkbox" id="chk-tools" data-check="tools"><span class="box" aria-hidden="true"></span><span class="step-title">Check your tools</span></label></div><p class="step-text">Each command prints a version number. You need .NET 10, Node.js 20.19 or newer, and Git.</p><div class="term"><div class="term-bar"><span class="term-label"><span data-shell-only="ps">PowerShell</span><span data-shell-only="sh">Terminal</span></span><button type="button" class="copy">Copy</button></div><pre><code><span class="ln" data-stack="dotnet">dotnet --version</span><span class="ln" data-stack="react">node --version</span><span class="ln">git --version</span></code></pre></div></li><li class="step" id="step-folder"><div class="step-head"><label class="tick"><input type="checkbox" id="chk-folder" data-check="folder"><span class="box" aria-hidden="true"></span><span class="step-title">Create the repository folder</span></label></div><p class="step-text"><code>git init -b main</code> starts a Git repository whose first branch is called <code>main</code>.</p><div class="term"><div class="term-bar"><span class="term-label"><span data-shell-only="ps">PowerShell</span><span data-shell-only="sh">Terminal</span></span><button type="button" class="copy">Copy</button></div><pre><code><span class="ln">mkdir classroom-app</span><span class="ln">cd classroom-app</span><span class="ln">git init -b main</span></code></pre></div></li><li class="step" data-stack="dotnet" id="step-dotnet-new"><div class="step-head"><label class="tick"><input type="checkbox" id="chk-dotnet-new" data-check="dotnet-new"><span class="box" aria-hidden="true"></span><span class="step-title">Create the API and a solution</span></label><span class="stack-tag" data-s="dotnet">.NET</span></div><p class="step-text"><code>-n</code> names the project and <code>-o</code> says which folder it goes in. In .NET 10, <code>dotnet new sln</code> creates a <code>.slnx</code> file, the new XML solution format.</p><div class="term"><div class="term-bar"><span class="term-label"><span data-shell-only="ps">PowerShell</span><span data-shell-only="sh">Terminal</span></span><button type="button" class="copy">Copy</button></div><pre><code><span class="ln">dotnet new gitignore</span><span class="ln">dotnet new sln -n ClassroomApp</span><span class="ln">dotnet new webapi -n ClassroomApp.Api -o src/ClassroomApp.Api</span><span class="ln">dotnet sln add src/ClassroomApp.Api</span></code></pre></div></li><li class="step" data-stack="react" id="step-vite-new"><div class="step-head"><label class="tick"><input type="checkbox" id="chk-vite-new" data-check="vite-new"><span class="box" aria-hidden="true"></span><span class="step-title">Create the React app</span></label><span class="stack-tag" data-s="react">React</span></div><p class="step-text">If npm asks <code>Ok to proceed? (y)</code>, press Enter. The flags answer Vite's questions for you: <code>--template react-ts</code> picks React with TypeScript, <code>--no-eslint</code> keeps the default linter (Oxlint), and <code>--no-immediate</code> stops it from starting the dev server before we look inside.</p><div class="term"><div class="term-bar"><span class="term-label"><span data-shell-only="ps">PowerShell</span><span data-shell-only="sh">Terminal</span></span><button type="button" class="copy">Copy</button></div><pre><code><span class="ln">npm create vite@latest src/web -- --template react-ts --no-eslint --no-immediate</span><span class="ln">cd src/web</span><span class="ln">npm install</span><span class="ln">cd ../..</span></code></pre></div></li><li class="step" id="step-open"><div class="step-head"><label class="tick"><input type="checkbox" id="chk-open" data-check="open"><span class="box" aria-hidden="true"></span><span class="step-title">Open it and save a first commit</span></label></div><p class="step-text"><code>code .</code> opens the folder in VS Code. The first commit is your safety net: you can always get back to the untouched template.</p><div class="term"><div class="term-bar"><span class="term-label"><span data-shell-only="ps">PowerShell</span><span data-shell-only="sh">Terminal</span></span><button type="button" class="copy">Copy</button></div><pre><code><span class="ln">code .</span><span class="ln">git add -A</span><span class="ln">git commit -m &quot;Scaffold from templates&quot;</span></code></pre></div></li></ol></section><section class="seg" id="tour" data-index="2" style="--segn:'3'"><header class="seg-head"><div class="seg-num">03</div><div><h2>Tour the template</h2><div class="seg-time"><span data-win="2">0:10–0:18</span> · <span data-mins="2">8 min</span></div></div></header><p class="intro">Templates add two kinds of files: the ones every project needs, and samples that prove the template works. For each file, decide what you would do with it, then check your answers.</p><aside class="teacher teacher-panel" aria-label="Teacher notes"><div class="tlabel">Teacher notes</div><dl><div><dt>Say</dt><dd><ul><li>Our job is to tell the needed files from the samples.</li><li><code>launchSettings.json</code> is local only; <code>appsettings.json</code> ships everywhere. <code>package-lock.json</code> gets committed; <code>node_modules</code>, <code>bin</code> and <code>obj</code> never do.</li></ul></dd></div><div><dt>Ask</dt><dd>Which of these files would break the app if you deleted it? (<code>Program.cs</code>, the <code>.csproj</code>, <code>index.html</code>, <code>main.tsx</code>, <code>package.json</code>.)</dd></div><div><dt>If you're behind</dt><dd>Cover only <code>Program.cs</code>, <code>launchSettings.json</code>, <code>App.tsx</code> and <code>vite.config.ts</code>. Students read the rest after class.</dd></div></dl></aside><div class="tour" id="tour-quiz"><div class="tour-tools"><button type="button" class="btn" id="tour-check">Check my answers</button><button type="button" class="btn ghost" id="tour-reset">Start over</button><span class="tour-score" id="tour-score" aria-live="polite"></span></div><h3 class="tour-area" data-stack="dotnet">Repository root</h3><ul class="tour-list" data-stack="dotnet"><li class="tour-item" data-stack="dotnet" data-id="t0" data-answer="keep"><div><div class="tour-path"><code>.gitignore</code></div><p class="tour-what">Lists the files Git should never commit.</p></div><div class="choices" role="group" aria-label="What to do with .gitignore"><button type="button" data-choice="keep" class="answer" aria-pressed="false">Keep</button><button type="button" data-choice="change" aria-pressed="false">Change</button><button type="button" data-choice="delete" aria-pressed="false">Delete</button><button type="button" data-choice="ignore" aria-pressed="false">Ignore</button></div><p class="tour-why"><b>keep.</b> <code>bin/</code>, <code>obj/</code>, <code>node_modules/</code> and editor settings must stay out of the repository. Created by <code>dotnet new gitignore</code>.</p></li><li class="tour-item" data-stack="dotnet" data-id="t1" data-answer="keep"><div><div class="tour-path"><code>ClassroomApp.slnx</code></div><p class="tour-what">The solution file: which .NET projects belong together.</p></div><div class="choices" role="group" aria-label="What to do with ClassroomApp.slnx"><button type="button" data-choice="keep" class="answer" aria-pressed="false">Keep</button><button type="button" data-choice="change" aria-pressed="false">Change</button><button type="button" data-choice="delete" aria-pressed="false">Delete</button><button type="button" data-choice="ignore" aria-pressed="false">Ignore</button></div><p class="tour-why"><b>keep.</b> <code>dotnet build</code> and Visual Studio use it to build and open every project at once. <code>.slnx</code> is the XML format .NET 10 creates by default.</p></li></ul><h3 class="tour-area" data-stack="dotnet">API · src/ClassroomApp.Api</h3><ul class="tour-list" data-stack="dotnet"><li class="tour-item" data-stack="dotnet" data-id="t2" data-answer="keep"><div><div class="tour-path"><code>ClassroomApp.Api.csproj</code></div><p class="tour-what">The project file: framework, compiler settings, NuGet packages.</p></div><div class="choices" role="group" aria-label="What to do with ClassroomApp.Api.csproj"><button type="button" data-choice="keep" class="answer" aria-pressed="false">Keep</button><button type="button" data-choice="change" aria-pressed="false">Change</button><button type="button" data-choice="delete" aria-pressed="false">Delete</button><button type="button" data-choice="ignore" aria-pressed="false">Ignore</button></div><p class="tour-why"><b>keep.</b> Without it there is no project. It targets <code>net10.0</code>, turns on nullable reference types and references <code>Microsoft.AspNetCore.OpenApi</code>.</p></li><li class="tour-item" data-stack="dotnet" data-id="t3" data-answer="change"><div><div class="tour-path"><code>Program.cs</code></div><p class="tour-what">The entry point: registers services and sets up the request pipeline.</p></div><div class="choices" role="group" aria-label="What to do with Program.cs"><button type="button" data-choice="keep" aria-pressed="false">Keep</button><button type="button" data-choice="change" class="answer" aria-pressed="false">Change</button><button type="button" data-choice="delete" aria-pressed="false">Delete</button><button type="button" data-choice="ignore" aria-pressed="false">Ignore</button></div><p class="tour-why"><b>change.</b> Keep the setup, remove the WeatherForecast sample endpoint and its record.</p></li><li class="tour-item" data-stack="dotnet" data-id="t4" data-answer="change"><div><div class="tour-path"><code>ClassroomApp.Api.http</code></div><p class="tour-what">Requests you can send from the editor with one click.</p></div><div class="choices" role="group" aria-label="What to do with ClassroomApp.Api.http"><button type="button" data-choice="keep" aria-pressed="false">Keep</button><button type="button" data-choice="change" class="answer" aria-pressed="false">Change</button><button type="button" data-choice="delete" aria-pressed="false">Delete</button><button type="button" data-choice="ignore" aria-pressed="false">Ignore</button></div><p class="tour-why"><b>change.</b> Useful, but it points at the sample <code>/weatherforecast</code> route.</p></li><li class="tour-item" data-stack="dotnet" data-id="t5" data-answer="change"><div><div class="tour-path"><code>Properties/launchSettings.json</code></div><p class="tour-what">Settings for running the app on your machine: ports and environment.</p></div><div class="choices" role="group" aria-label="What to do with Properties/launchSettings.json"><button type="button" data-choice="keep" aria-pressed="false">Keep</button><button type="button" data-choice="change" class="answer" aria-pressed="false">Change</button><button type="button" data-choice="delete" aria-pressed="false">Delete</button><button type="button" data-choice="ignore" aria-pressed="false">Ignore</button></div><p class="tour-why"><b>change.</b> Production never reads it, and the template picked a random port. We pin it to 5080 so everyone's matches.</p></li><li class="tour-item" data-stack="dotnet" data-id="t6" data-answer="keep"><div><div class="tour-path"><code>appsettings.json, appsettings.Development.json</code></div><p class="tour-what">Configuration for every environment, plus overrides for Development.</p></div><div class="choices" role="group" aria-label="What to do with appsettings.json, appsettings.Development.json"><button type="button" data-choice="keep" class="answer" aria-pressed="false">Keep</button><button type="button" data-choice="change" aria-pressed="false">Change</button><button type="button" data-choice="delete" aria-pressed="false">Delete</button><button type="button" data-choice="ignore" aria-pressed="false">Ignore</button></div><p class="tour-why"><b>keep.</b> Logging levels now, connection strings later. Secrets don't belong in either file.</p></li><li class="tour-item" data-stack="dotnet" data-id="t7" data-answer="ignore"><div><div class="tour-path"><code>bin/, obj/</code></div><p class="tour-what">Folders the build creates.</p></div><div class="choices" role="group" aria-label="What to do with bin/, obj/"><button type="button" data-choice="keep" aria-pressed="false">Keep</button><button type="button" data-choice="change" aria-pressed="false">Change</button><button type="button" data-choice="delete" aria-pressed="false">Delete</button><button type="button" data-choice="ignore" class="answer" aria-pressed="false">Ignore</button></div><p class="tour-why"><b>ignore.</b> Recreated on every build. Never edit or commit them; <code>.gitignore</code> already skips them.</p></li></ul><h3 class="tour-area" data-stack="react">React · src/web</h3><ul class="tour-list" data-stack="react"><li class="tour-item" data-stack="react" data-id="t8" data-answer="keep"><div><div class="tour-path"><code>package.json</code></div><p class="tour-what">Scripts and dependencies for the React app.</p></div><div class="choices" role="group" aria-label="What to do with package.json"><button type="button" data-choice="keep" class="answer" aria-pressed="false">Keep</button><button type="button" data-choice="change" aria-pressed="false">Change</button><button type="button" data-choice="delete" aria-pressed="false">Delete</button><button type="button" data-choice="ignore" aria-pressed="false">Ignore</button></div><p class="tour-why"><b>keep.</b> <code>npm run dev</code>, <code>build</code>, <code>lint</code> and <code>preview</code> come from here, and so do React 19, Vite 8, TypeScript and Oxlint.</p></li><li class="tour-item" data-stack="react" data-id="t9" data-answer="keep"><div><div class="tour-path"><code>package-lock.json</code></div><p class="tour-what">The exact version of every installed package.</p></div><div class="choices" role="group" aria-label="What to do with package-lock.json"><button type="button" data-choice="keep" class="answer" aria-pressed="false">Keep</button><button type="button" data-choice="change" aria-pressed="false">Change</button><button type="button" data-choice="delete" aria-pressed="false">Delete</button><button type="button" data-choice="ignore" aria-pressed="false">Ignore</button></div><p class="tour-why"><b>keep.</b> Commit it, so every machine installs exactly the same packages.</p></li><li class="tour-item" data-stack="react" data-id="t10" data-answer="ignore"><div><div class="tour-path"><code>node_modules/</code></div><p class="tour-what">The installed packages themselves.</p></div><div class="choices" role="group" aria-label="What to do with node_modules/"><button type="button" data-choice="keep" aria-pressed="false">Keep</button><button type="button" data-choice="change" aria-pressed="false">Change</button><button type="button" data-choice="delete" aria-pressed="false">Delete</button><button type="button" data-choice="ignore" class="answer" aria-pressed="false">Ignore</button></div><p class="tour-why"><b>ignore.</b> <code>npm install</code> recreates it. Never commit it.</p></li><li class="tour-item" data-stack="react" data-id="t11" data-answer="change"><div><div class="tour-path"><code>index.html</code></div><p class="tour-what">The single HTML page the app loads into.</p></div><div class="choices" role="group" aria-label="What to do with index.html"><button type="button" data-choice="keep" aria-pressed="false">Keep</button><button type="button" data-choice="change" class="answer" aria-pressed="false">Change</button><button type="button" data-choice="delete" aria-pressed="false">Delete</button><button type="button" data-choice="ignore" aria-pressed="false">Ignore</button></div><p class="tour-why"><b>change.</b> Vite starts from it and loads <code>/src/main.tsx</code>, so it stays. Only the title changes.</p></li><li class="tour-item" data-stack="react" data-id="t12" data-answer="change"><div><div class="tour-path"><code>vite.config.ts</code></div><p class="tour-what">Settings for Vite's dev server and build.</p></div><div class="choices" role="group" aria-label="What to do with vite.config.ts"><button type="button" data-choice="keep" aria-pressed="false">Keep</button><button type="button" data-choice="change" class="answer" aria-pressed="false">Change</button><button type="button" data-choice="delete" aria-pressed="false">Delete</button><button type="button" data-choice="ignore" aria-pressed="false">Ignore</button></div><p class="tour-why"><b>change.</b> We add a proxy so <code>/api</code> requests reach the .NET API.</p></li><li class="tour-item" data-stack="react" data-id="t13" data-answer="keep"><div><div class="tour-path"><code>tsconfig.json, tsconfig.app.json, tsconfig.node.json</code></div><p class="tour-what">TypeScript settings.</p></div><div class="choices" role="group" aria-label="What to do with tsconfig.json, tsconfig.app.json, tsconfig.node.json"><button type="button" data-choice="keep" class="answer" aria-pressed="false">Keep</button><button type="button" data-choice="change" aria-pressed="false">Change</button><button type="button" data-choice="delete" aria-pressed="false">Delete</button><button type="button" data-choice="ignore" aria-pressed="false">Ignore</button></div><p class="tour-why"><b>keep.</b> One file for code that runs in the browser, one for config that runs in Node, and one that ties them together.</p></li><li class="tour-item" data-stack="react" data-id="t14" data-answer="keep"><div><div class="tour-path"><code>.oxlintrc.json</code></div><p class="tour-what">Linter rules.</p></div><div class="choices" role="group" aria-label="What to do with .oxlintrc.json"><button type="button" data-choice="keep" class="answer" aria-pressed="false">Keep</button><button type="button" data-choice="change" aria-pressed="false">Change</button><button type="button" data-choice="delete" aria-pressed="false">Delete</button><button type="button" data-choice="ignore" aria-pressed="false">Ignore</button></div><p class="tour-why"><b>keep.</b> Oxlint is the fast linter Vite now uses by default instead of ESLint. Run it with <code>npm run lint</code>.</p></li><li class="tour-item" data-stack="react" data-id="t15" data-answer="keep"><div><div class="tour-path"><code>.gitignore</code></div><p class="tour-what">Node-specific files Git should skip.</p></div><div class="choices" role="group" aria-label="What to do with .gitignore"><button type="button" data-choice="keep" class="answer" aria-pressed="false">Keep</button><button type="button" data-choice="change" aria-pressed="false">Change</button><button type="button" data-choice="delete" aria-pressed="false">Delete</button><button type="button" data-choice="ignore" aria-pressed="false">Ignore</button></div><p class="tour-why"><b>keep.</b> Covers <code>node_modules</code>, <code>dist</code> and log files inside this folder.</p></li><li class="tour-item" data-stack="react" data-id="t16" data-answer="delete"><div><div class="tour-path"><code>README.md</code></div><p class="tour-what">Notes from the template about Vite plugins.</p></div><div class="choices" role="group" aria-label="What to do with README.md"><button type="button" data-choice="keep" aria-pressed="false">Keep</button><button type="button" data-choice="change" aria-pressed="false">Change</button><button type="button" data-choice="delete" class="answer" aria-pressed="false">Delete</button><button type="button" data-choice="ignore" aria-pressed="false">Ignore</button></div><p class="tour-why"><b>delete.</b> Your project gets its own README at the repository root.</p></li><li class="tour-item" data-stack="react" data-id="t17" data-answer="keep"><div><div class="tour-path"><code>public/favicon.svg</code></div><p class="tour-what">The icon in the browser tab.</p></div><div class="choices" role="group" aria-label="What to do with public/favicon.svg"><button type="button" data-choice="keep" class="answer" aria-pressed="false">Keep</button><button type="button" data-choice="change" aria-pressed="false">Change</button><button type="button" data-choice="delete" aria-pressed="false">Delete</button><button type="button" data-choice="ignore" aria-pressed="false">Ignore</button></div><p class="tour-why"><b>keep.</b> Files in <code>public/</code> are served as they are. Keep it until you have a logo of your own.</p></li><li class="tour-item" data-stack="react" data-id="t18" data-answer="delete"><div><div class="tour-path"><code>public/icons.svg</code></div><p class="tour-what">A sheet of social-media icons.</p></div><div class="choices" role="group" aria-label="What to do with public/icons.svg"><button type="button" data-choice="keep" aria-pressed="false">Keep</button><button type="button" data-choice="change" aria-pressed="false">Change</button><button type="button" data-choice="delete" class="answer" aria-pressed="false">Delete</button><button type="button" data-choice="ignore" aria-pressed="false">Ignore</button></div><p class="tour-why"><b>delete.</b> Only the demo page used it.</p></li><li class="tour-item" data-stack="react" data-id="t19" data-answer="keep"><div><div class="tour-path"><code>src/main.tsx</code></div><p class="tour-what">Starts React in the page.</p></div><div class="choices" role="group" aria-label="What to do with src/main.tsx"><button type="button" data-choice="keep" class="answer" aria-pressed="false">Keep</button><button type="button" data-choice="change" aria-pressed="false">Change</button><button type="button" data-choice="delete" aria-pressed="false">Delete</button><button type="button" data-choice="ignore" aria-pressed="false">Ignore</button></div><p class="tour-why"><b>keep.</b> It finds the <code>#root</code> element and renders <code>&lt;App /&gt;</code> inside StrictMode.</p></li><li class="tour-item" data-stack="react" data-id="t20" data-answer="change"><div><div class="tour-path"><code>src/App.tsx</code></div><p class="tour-what">The page you see when you run the app.</p></div><div class="choices" role="group" aria-label="What to do with src/App.tsx"><button type="button" data-choice="keep" aria-pressed="false">Keep</button><button type="button" data-choice="change" class="answer" aria-pressed="false">Change</button><button type="button" data-choice="delete" aria-pressed="false">Delete</button><button type="button" data-choice="ignore" aria-pressed="false">Ignore</button></div><p class="tour-why"><b>change.</b> It is a demo with a counter, logos and links. We replace it with our own.</p></li><li class="tour-item" data-stack="react" data-id="t21" data-answer="delete"><div><div class="tour-path"><code>src/App.css</code></div><p class="tour-what">Styles for <code>App.tsx</code>.</p></div><div class="choices" role="group" aria-label="What to do with src/App.css"><button type="button" data-choice="keep" aria-pressed="false">Keep</button><button type="button" data-choice="change" aria-pressed="false">Change</button><button type="button" data-choice="delete" class="answer" aria-pressed="false">Delete</button><button type="button" data-choice="ignore" aria-pressed="false">Ignore</button></div><p class="tour-why"><b>delete.</b> They only style the demo.</p></li><li class="tour-item" data-stack="react" data-id="t22" data-answer="change"><div><div class="tour-path"><code>src/index.css</code></div><p class="tour-what">Global styles.</p></div><div class="choices" role="group" aria-label="What to do with src/index.css"><button type="button" data-choice="keep" aria-pressed="false">Keep</button><button type="button" data-choice="change" class="answer" aria-pressed="false">Change</button><button type="button" data-choice="delete" aria-pressed="false">Delete</button><button type="button" data-choice="ignore" aria-pressed="false">Ignore</button></div><p class="tour-why"><b>change.</b> The template's are tuned for the demo, so they get a small replacement.</p></li><li class="tour-item" data-stack="react" data-id="t23" data-answer="delete"><div><div class="tour-path"><code>src/assets/</code></div><p class="tour-what">Images: <code>hero.png</code>, <code>react.svg</code>, <code>vite.svg</code>.</p></div><div class="choices" role="group" aria-label="What to do with src/assets/"><button type="button" data-choice="keep" aria-pressed="false">Keep</button><button type="button" data-choice="change" aria-pressed="false">Change</button><button type="button" data-choice="delete" class="answer" aria-pressed="false">Delete</button><button type="button" data-choice="ignore" aria-pressed="false">Ignore</button></div><p class="tour-why"><b>delete.</b> Only the demo used them.</p></li></ul></div></section><section class="seg" id="clean" data-index="3" style="--segn:'4'"><header class="seg-head"><div class="seg-num">04</div><div><h2>Remove what you don't need</h2><div class="seg-time"><span data-win="3">0:18–0:24</span> · <span data-mins="3">6 min</span></div></div></header><p class="intro">Delete the samples, then replace the demo code with the smallest thing that still runs.</p><aside class="teacher teacher-panel" aria-label="Teacher notes"><div class="tlabel">Teacher notes</div><dl><div><dt>Say</dt><dd><ul><li>Delete with <code>git rm</code>, not the file explorer: Git records the delete, and the command is identical in every shell.</li><li>We pin the API to port 5080 so the React dev server knows where to send <code>/api</code> calls.</li></ul></dd></div><div><dt>Watch for</dt><dd><ul><li>Unsaved files in VS Code (a dot on the tab) cause confusing build results. Turn on File, Auto Save.</li><li>Both builds must pass before the commit.</li></ul></dd></div></dl></aside><ol class="steps"><li class="step" data-stack="react" id="step-clean-delete"><div class="step-head"><label class="tick"><input type="checkbox" id="chk-clean-delete" data-check="clean-delete"><span class="box" aria-hidden="true"></span><span class="step-title">Delete the demo files</span></label><span class="stack-tag" data-s="react">React</span></div><p class="step-text"><code>git rm</code> deletes the files and records the delete in Git, and it is the same command in every shell.</p><div class="term"><div class="term-bar"><span class="term-label"><span data-shell-only="ps">PowerShell</span><span data-shell-only="sh">Terminal</span></span><button type="button" class="copy">Copy</button></div><pre><code><span class="ln">git rm -r src/web/src/assets src/web/src/App.css src/web/public/icons.svg src/web/README.md</span></code></pre></div></li><li class="step" data-stack="dotnet" id="step-clean-api"><div class="step-head"><label class="tick"><input type="checkbox" id="chk-clean-api" data-check="clean-api"><span class="box" aria-hidden="true"></span><span class="step-title">Strip the API down</span></label><span class="stack-tag" data-s="dotnet">.NET</span></div><p class="step-text">Remove the WeatherForecast sample from <code>Program.cs</code>, point the <code>.http</code> file at the new endpoint, and pin the port to 5080 so everyone's matches.</p><div class="files"><div class="file"><div class="file-bar"><span class="kind kind-replace">Replace file</span><code class="file-path">src/ClassroomApp.Api/Program.cs</code><button type="button" class="copy">Copy</button></div><pre><code class="block">var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddOpenApi();
+
+var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+}
+
+app.UseHttpsRedirection();
+
+app.MapGet(&quot;/api/health&quot;, () =&gt; Results.Ok(new { status = &quot;ok&quot; }));
+
+app.Run();</code></pre></div><div class="file"><div class="file-bar"><span class="kind kind-replace">Replace file</span><code class="file-path">src/ClassroomApp.Api/ClassroomApp.Api.http</code><button type="button" class="copy">Copy</button></div><pre><code class="block">@ClassroomApp.Api_HostAddress = http://localhost:5080
+
+GET {{ClassroomApp.Api_HostAddress}}/api/health
+Accept: application/json
+
+###</code></pre></div><div class="file"><div class="file-bar"><span class="kind kind-replace">Replace file</span><code class="file-path">src/ClassroomApp.Api/Properties/launchSettings.json</code><button type="button" class="copy">Copy</button></div><pre><code class="block">{
+  &quot;$schema&quot;: &quot;https://json.schemastore.org/launchsettings.json&quot;,
+  &quot;profiles&quot;: {
+    &quot;http&quot;: {
+      &quot;commandName&quot;: &quot;Project&quot;,
+      &quot;dotnetRunMessages&quot;: true,
+      &quot;launchBrowser&quot;: false,
+      &quot;applicationUrl&quot;: &quot;http://localhost:5080&quot;,
+      &quot;environmentVariables&quot;: {
+        &quot;ASPNETCORE_ENVIRONMENT&quot;: &quot;Development&quot;
+      }
+    },
+    &quot;https&quot;: {
+      &quot;commandName&quot;: &quot;Project&quot;,
+      &quot;dotnetRunMessages&quot;: true,
+      &quot;launchBrowser&quot;: false,
+      &quot;applicationUrl&quot;: &quot;https://localhost:7080;http://localhost:5080&quot;,
+      &quot;environmentVariables&quot;: {
+        &quot;ASPNETCORE_ENVIRONMENT&quot;: &quot;Development&quot;
+      }
+    }
+  }
+}</code></pre></div></div></li><li class="step" data-stack="react" id="step-clean-web"><div class="step-head"><label class="tick"><input type="checkbox" id="chk-clean-web" data-check="clean-web"><span class="box" aria-hidden="true"></span><span class="step-title">Strip the React app down</span></label><span class="stack-tag" data-s="react">React</span></div><p class="step-text">Replace the demo page and its styles. The <code>proxy</code> line forwards every <code>/api</code> request from the dev server to the API on port 5080.</p><div class="files"><div class="file"><div class="file-bar"><span class="kind kind-replace">Replace file</span><code class="file-path">src/web/src/App.tsx</code><button type="button" class="copy">Copy</button></div><pre><code class="block">function App() {
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;Classroom&lt;/h1&gt;
+      &lt;p&gt;A clean slate. Next we give every piece of code a home.&lt;/p&gt;
+    &lt;/main&gt;
+  )
+}
+
+export default App</code></pre></div><div class="file"><div class="file-bar"><span class="kind kind-replace">Replace file</span><code class="file-path">src/web/src/index.css</code><button type="button" class="copy">Copy</button></div><pre><code class="block">:root {
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.cards {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem 1rem;
+  border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+  border-radius: 8px;
+}</code></pre></div><div class="file"><div class="file-bar"><span class="kind kind-replace">Replace file</span><code class="file-path">src/web/vite.config.ts</code><button type="button" class="copy">Copy</button></div><pre><code class="block">import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    // During development, send every /api request to the ASP.NET Core API.
+    proxy: { '/api': 'http://localhost:5080' },
+  },
+})</code></pre></div><div class="file"><div class="file-bar"><span class="kind kind-edit">Edit one line</span><code class="file-path">src/web/index.html</code><button type="button" class="copy" data-text="    &lt;title&gt;Classroom&lt;/title&gt;">Copy new line</button></div><div class="edit-body"><div class="edit-hint">Find the first line, change it to the second.</div><div class="edit-row old"><span>−</span><code>    &lt;title&gt;web&lt;/title&gt;</code></div><div class="edit-row new"><span>+</span><code>    &lt;title&gt;Classroom&lt;/title&gt;</code></div></div></div></div></li><li class="step" id="step-clean-readme"><div class="step-head"><label class="tick"><input type="checkbox" id="chk-clean-readme" data-check="clean-readme"><span class="box" aria-hidden="true"></span><span class="step-title">Write your own README</span></label></div><p class="step-text">The repository's front page. One table that says what is where and how to run it.</p><div class="files"><div class="file" data-variant="full"><div class="file-bar"><span class="kind kind-new">New file</span><code class="file-path">README.md</code><button type="button" class="copy">Copy</button></div><pre><code class="block"># Classroom App
+
+An ASP.NET Core Web API and a React front end in one repository.
+
+| Folder                 | What it is                   | Run it                                       |
+| ---------------------- | ---------------------------- | -------------------------------------------- |
+| `src/ClassroomApp.Api` | ASP.NET Core Web API, .NET 10 | `dotnet run --project src/ClassroomApp.Api`  |
+| `src/web`              | React + TypeScript with Vite | `cd src/web` then `npm run dev`              |
+
+The API listens on http://localhost:5080. The React dev server runs on
+http://localhost:5173 and forwards every `/api` request to the API.</code></pre></div><div class="file" data-variant="react"><div class="file-bar"><span class="kind kind-new">New file</span><code class="file-path">README.md</code><button type="button" class="copy">Copy</button></div><pre><code class="block"># Classroom App
+
+A React front end built with Vite and TypeScript.
+
+| Folder    | What it is                   | Run it                          |
+| --------- | ---------------------------- | ------------------------------- |
+| `src/web` | React + TypeScript with Vite | `cd src/web` then `npm run dev` |
+
+The dev server runs on http://localhost:5173 and forwards every `/api`
+request to an API on http://localhost:5080.</code></pre></div><div class="file" data-variant="dotnet"><div class="file-bar"><span class="kind kind-new">New file</span><code class="file-path">README.md</code><button type="button" class="copy">Copy</button></div><pre><code class="block"># Classroom App
+
+An ASP.NET Core Web API on .NET 10.
+
+| Folder                 | What it is                    | Run it                                      |
+| ---------------------- | ----------------------------- | ------------------------------------------- |
+| `src/ClassroomApp.Api` | ASP.NET Core Web API, .NET 10 | `dotnet run --project src/ClassroomApp.Api` |
+
+The API listens on http://localhost:5080.</code></pre></div></div></li><li class="step" id="step-clean-check"><div class="step-head"><label class="tick"><input type="checkbox" id="chk-clean-check" data-check="clean-check"><span class="box" aria-hidden="true"></span><span class="step-title">Check that it still builds, then commit</span></label></div><p class="step-text" data-variant="full">Expected: <code>Build succeeded</code> from .NET and <code>built in</code> from Vite. A passing build is the checkpoint for every step from here on.</p><p class="step-text" data-variant="react">Expected: Vite prints <code>built in</code>. A passing build is the checkpoint for every step from here on.</p><p class="step-text" data-variant="dotnet">Expected: <code>Build succeeded</code>. A passing build is the checkpoint for every step from here on.</p><div class="term"><div class="term-bar"><span class="term-label"><span data-shell-only="ps">PowerShell</span><span data-shell-only="sh">Terminal</span></span><button type="button" class="copy">Copy</button></div><pre><code><span class="ln" data-stack="dotnet">dotnet build</span><span class="ln" data-stack="react">cd src/web</span><span class="ln" data-stack="react">npm run build</span><span class="ln" data-stack="react">cd ../..</span><span class="ln">git add -A</span><span class="ln">git commit -m &quot;Remove template samples&quot;</span></code></pre></div></li></ol></section><section class="seg" id="small" data-index="4" style="--segn:'5'"><header class="seg-head"><div class="seg-num">05</div><div><h2>Structure for a small project</h2><div class="seg-time"><span data-win="4">0:24–0:33</span> · <span data-mins="4">9 min</span></div></div></header><p class="intro">One project and one app. Inside each, one folder per kind of code. Anyone can find a file by asking what kind of thing it is.</p><aside class="teacher teacher-panel" aria-label="Teacher notes"><div class="tlabel">Teacher notes</div><dl><div><dt>Say</dt><dd><ul><li>Small-project rule: one project, one app, one folder per kind of code. You find a file by asking what kind of thing it is.</li><li><code>Program.cs</code> only wires things up. The endpoint lives in <code>Endpoints/</code>, the data access in <code>Data/</code>.</li><li>Follow the React imports on screen: pages use hooks and components, hooks use lib, everything uses types. Nothing points back up.</li></ul></dd></div><div><dt>Watch for</dt><dd><ul><li>TypeScript error <code>'Course' is a type and must be imported using a type-only import</code>: the import needs <code>import type</code>.</li><li><code>502 Bad Gateway</code> on the page means the API is not running.</li></ul></dd></div></dl></aside><div class="concept"><div class="trees"><figure class="tree" data-stack="dotnet"><figcaption>API</figcaption><div class="tree-rows"><span class="tn">src/ClassroomApp.Api/</span><span class="tc"></span><span class="tn">├── Endpoints/</span><span class="tc">HTTP routes, one file per resource</span><span class="tn">│   └── CourseEndpoints.cs</span><span class="tc"></span><span class="tn">├── Models/</span><span class="tc">the shapes of the data</span><span class="tn">│   └── Course.cs</span><span class="tc"></span><span class="tn">├── Data/</span><span class="tc">where data comes from: memory now, EF Core later</span><span class="tn">│   └── CourseStore.cs</span><span class="tc"></span><span class="tn">├── Properties/launchSettings.json</span><span class="tc"></span><span class="tn">├── appsettings.json</span><span class="tc"></span><span class="tn">└── Program.cs</span><span class="tc">wiring only: services and pipeline</span></div></figure><figure class="tree" data-stack="react"><figcaption>React</figcaption><div class="tree-rows"><span class="tn">src/web/src/</span><span class="tc"></span><span class="tn">├── components/</span><span class="tc">reusable UI pieces</span><span class="tn">│   └── CourseCard.tsx</span><span class="tc"></span><span class="tn">├── pages/</span><span class="tc">one component per screen</span><span class="tn">│   └── CoursesPage.tsx</span><span class="tc"></span><span class="tn">├── hooks/</span><span class="tc">reusable state and effects</span><span class="tn">│   └── useCourses.ts</span><span class="tc"></span><span class="tn">├── lib/</span><span class="tc">plain helpers, like calling the API</span><span class="tn">│   └── api.ts</span><span class="tc"></span><span class="tn">├── types/</span><span class="tc">shared TypeScript types</span><span class="tn">│   └── course.ts</span><span class="tc"></span><span class="tn">├── App.tsx</span><span class="tc">picks the page</span><span class="tn">├── main.tsx</span><span class="tc">starts React</span><span class="tn">└── index.css</span><span class="tc">global styles</span></div></figure></div><ul class="rules"><li data-stack="dotnet"><code>Program.cs</code> only wires things up. Endpoints live in <code>Endpoints/</code>, data access in <code>Data/</code>.</li><li data-stack="react">Imports flow one way: pages use hooks and components, hooks use lib, everything may use types.</li><li>Fits one team, a handful of screens and endpoints, and a codebase one person can hold in their head.</li></ul></div><ol class="steps"><li class="step" id="step-small-branch"><div class="step-head"><label class="tick"><input type="checkbox" id="chk-small-branch" data-check="small-branch"><span class="box" aria-hidden="true"></span><span class="step-title">Start a branch</span></label></div><p class="step-text">Each structure gets its own branch, so you can compare them at the end.</p><div class="term"><div class="term-bar"><span class="term-label"><span data-shell-only="ps">PowerShell</span><span data-shell-only="sh">Terminal</span></span><button type="button" class="copy">Copy</button></div><pre><code><span class="ln">git switch -c small</span></code></pre></div></li><li class="step" data-stack="dotnet" id="step-small-api-folders"><div class="step-head"><label class="tick"><input type="checkbox" id="chk-small-api-folders" data-check="small-api-folders"><span class="box" aria-hidden="true"></span><span class="step-title">Make the API folders</span></label><span class="stack-tag" data-s="dotnet">.NET</span></div><div class="term"><div class="term-bar"><span class="term-label"><span data-shell-only="ps">PowerShell</span><span data-shell-only="sh">Terminal</span></span><button type="button" class="copy">Copy</button></div><pre><code><span class="ln" data-shell-only="ps">mkdir src/ClassroomApp.Api/Models, src/ClassroomApp.Api/Data, src/ClassroomApp.Api/Endpoints</span><span class="ln" data-shell-only="sh">mkdir src/ClassroomApp.Api/Models src/ClassroomApp.Api/Data src/ClassroomApp.Api/Endpoints</span></code></pre></div></li><li class="step" data-stack="dotnet" id="step-small-api-files"><div class="step-head"><label class="tick"><input type="checkbox" id="chk-small-api-files" data-check="small-api-files"><span class="box" aria-hidden="true"></span><span class="step-title">Add the course code to the API</span></label><span class="stack-tag" data-s="dotnet">.NET</span></div><p class="step-text">A model, a data store, and an endpoint file. <code>Program.cs</code> now only registers the store and maps the endpoints.</p><div class="files"><div class="file"><div class="file-bar"><span class="kind kind-new">New file</span><code class="file-path">src/ClassroomApp.Api/Models/Course.cs</code><button type="button" class="copy">Copy</button></div><pre><code class="block">namespace ClassroomApp.Api.Models;
+
+public record Course(int Id, string Title, string Teacher);</code></pre></div><div class="file"><div class="file-bar"><span class="kind kind-new">New file</span><code class="file-path">src/ClassroomApp.Api/Data/CourseStore.cs</code><button type="button" class="copy">Copy</button></div><pre><code class="block">using ClassroomApp.Api.Models;
+
+namespace ClassroomApp.Api.Data;
+
+// Stands in for a database for now. Swap it for EF Core later.
+public class CourseStore
+{
+    private readonly List&lt;Course&gt; _courses =
+    [
+        new(1, &quot;Software Architecture&quot;, &quot;Ms. Rivera&quot;),
+        new(2, &quot;Intro to React&quot;, &quot;Mr. Chen&quot;),
+    ];
+
+    public IReadOnlyList&lt;Course&gt; GetAll() =&gt; _courses;
+}</code></pre></div><div class="file"><div class="file-bar"><span class="kind kind-new">New file</span><code class="file-path">src/ClassroomApp.Api/Endpoints/CourseEndpoints.cs</code><button type="button" class="copy">Copy</button></div><pre><code class="block">using ClassroomApp.Api.Data;
+
+namespace ClassroomApp.Api.Endpoints;
+
+public static class CourseEndpoints
+{
+    public static void MapCourseEndpoints(this IEndpointRouteBuilder app)
+    {
+        var group = app.MapGroup(&quot;/api/courses&quot;);
+
+        group.MapGet(&quot;/&quot;, (CourseStore store) =&gt; store.GetAll());
+    }
+}</code></pre></div><div class="file"><div class="file-bar"><span class="kind kind-replace">Replace file</span><code class="file-path">src/ClassroomApp.Api/Program.cs</code><button type="button" class="copy">Copy</button></div><pre><code class="block">using ClassroomApp.Api.Data;
+using ClassroomApp.Api.Endpoints;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddOpenApi();
+builder.Services.AddSingleton&lt;CourseStore&gt;();
+
+var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+}
+
+app.UseHttpsRedirection();
+
+app.MapGet(&quot;/api/health&quot;, () =&gt; Results.Ok(new { status = &quot;ok&quot; }));
+app.MapCourseEndpoints();
+
+app.Run();</code></pre></div><div class="file"><div class="file-bar"><span class="kind kind-replace">Replace file</span><code class="file-path">src/ClassroomApp.Api/ClassroomApp.Api.http</code><button type="button" class="copy">Copy</button></div><pre><code class="block">@ClassroomApp.Api_HostAddress = http://localhost:5080
+
+GET {{ClassroomApp.Api_HostAddress}}/api/health
+Accept: application/json
+
+###
+
+GET {{ClassroomApp.Api_HostAddress}}/api/courses
+Accept: application/json
+
+###</code></pre></div></div></li><li class="step" data-stack="react" id="step-small-web-folders"><div class="step-head"><label class="tick"><input type="checkbox" id="chk-small-web-folders" data-check="small-web-folders"><span class="box" aria-hidden="true"></span><span class="step-title">Make the React folders</span></label><span class="stack-tag" data-s="react">React</span></div><div class="term"><div class="term-bar"><span class="term-label"><span data-shell-only="ps">PowerShell</span><span data-shell-only="sh">Terminal</span></span><button type="button" class="copy">Copy</button></div><pre><code><span class="ln">cd src/web/src</span><span class="ln" data-shell-only="ps">mkdir components, pages, hooks, lib, types</span><span class="ln" data-shell-only="sh">mkdir components pages hooks lib types</span><span class="ln">cd ../../..</span></code></pre></div></li><li class="step" data-stack="react" id="step-small-web-files"><div class="step-head"><label class="tick"><input type="checkbox" id="chk-small-web-files" data-check="small-web-files"><span class="box" aria-hidden="true"></span><span class="step-title">Add the course code to the React app</span></label><span class="stack-tag" data-s="react">React</span></div><p class="step-text">In VS Code, typing a path such as <code>types/course.ts</code> in the New File box creates the file in that folder. The template turns on <code>verbatimModuleSyntax</code>, so type-only imports must say <code>import type</code>.</p><div class="files"><div class="file"><div class="file-bar"><span class="kind kind-new">New file</span><code class="file-path">src/web/src/types/course.ts</code><button type="button" class="copy">Copy</button></div><pre><code class="block">export interface Course {
+  id: number
+  title: string
+  teacher: string
+}</code></pre></div><div class="file"><div class="file-bar"><span class="kind kind-new">New file</span><code class="file-path">src/web/src/lib/api.ts</code><button type="button" class="copy">Copy</button></div><pre><code class="block">// The one place that knows how to call the API.
+export async function getJson&lt;T&gt;(path: string): Promise&lt;T&gt; {
+  const response = await fetch(path)
+  if (!response.ok) {
+    throw new Error(`${response.status} ${response.statusText}`)
+  }
+  return (await response.json()) as T
+}</code></pre></div><div class="file"><div class="file-bar"><span class="kind kind-new">New file</span><code class="file-path">src/web/src/hooks/useCourses.ts</code><button type="button" class="copy">Copy</button></div><pre><code class="block">import { useEffect, useState } from 'react'
+import { getJson } from '../lib/api'
+import type { Course } from '../types/course'
+
+export function useCourses() {
+  const [courses, setCourses] = useState&lt;Course[]&gt;([])
+  const [error, setError] = useState&lt;string | null&gt;(null)
+
+  useEffect(() =&gt; {
+    getJson&lt;Course[]&gt;('/api/courses')
+      .then(setCourses)
+      .catch((e: Error) =&gt; setError(e.message))
+  }, [])
+
+  return { courses, error }
+}</code></pre></div><div class="file"><div class="file-bar"><span class="kind kind-new">New file</span><code class="file-path">src/web/src/components/CourseCard.tsx</code><button type="button" class="copy">Copy</button></div><pre><code class="block">import type { Course } from '../types/course'
+
+export function CourseCard({ course }: { course: Course }) {
+  return (
+    &lt;li className=&quot;card&quot;&gt;
+      &lt;strong&gt;{course.title}&lt;/strong&gt;
+      &lt;span&gt;{course.teacher}&lt;/span&gt;
+    &lt;/li&gt;
+  )
+}</code></pre></div><div class="file"><div class="file-bar"><span class="kind kind-new">New file</span><code class="file-path">src/web/src/pages/CoursesPage.tsx</code><button type="button" class="copy">Copy</button></div><pre><code class="block">import { CourseCard } from '../components/CourseCard'
+import { useCourses } from '../hooks/useCourses'
+
+export function CoursesPage() {
+  const { courses, error } = useCourses()
+
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;Courses&lt;/h1&gt;
+      {error &amp;&amp; &lt;p role=&quot;alert&quot;&gt;Could not load courses: {error}&lt;/p&gt;}
+      &lt;ul className=&quot;cards&quot;&gt;
+        {courses.map((course) =&gt; (
+          &lt;CourseCard key={course.id} course={course} /&gt;
+        ))}
+      &lt;/ul&gt;
+    &lt;/main&gt;
+  )
+}</code></pre></div><div class="file"><div class="file-bar"><span class="kind kind-replace">Replace file</span><code class="file-path">src/web/src/App.tsx</code><button type="button" class="copy">Copy</button></div><pre><code class="block">import { CoursesPage } from './pages/CoursesPage'
+
+function App() {
+  return &lt;CoursesPage /&gt;
+}
+
+export default App</code></pre></div></div></li><li class="step" id="step-small-run"><div class="step-head"><label class="tick"><input type="checkbox" id="chk-small-run" data-check="small-run"><span class="box" aria-hidden="true"></span><span class="step-title">Run it</span></label></div><p class="step-text" data-variant="full">Start the API in one terminal and the React dev server in a second one. Open <a href="http://localhost:5173" target="_blank" rel="noopener">http://localhost:5173</a>: you should see two courses. Stop both with Ctrl+C when you're done.</p><p class="step-text" data-variant="react">Open <a href="http://localhost:5173" target="_blank" rel="noopener">http://localhost:5173</a>. The page says <code>Could not load courses: 502 Bad Gateway</code>. That is correct: there is no API yet, and you are looking at the page's error state. Stop the server with Ctrl+C.</p><p class="step-text" data-variant="dotnet">Open <a href="http://localhost:5080/api/courses" target="_blank" rel="noopener">http://localhost:5080/api/courses</a> in a browser, or click Send request above <code>GET /api/courses</code> in the <code>.http</code> file. Stop the API with Ctrl+C.</p><div class="term" data-stack="dotnet"><div class="term-bar"><span class="term-label"><span>Terminal 1</span></span><button type="button" class="copy">Copy</button></div><pre><code><span class="ln">dotnet run --project src/ClassroomApp.Api</span></code></pre></div><div class="term" data-stack="react"><div class="term-bar"><span class="term-label"><span data-variant="full dotnet">Terminal 2</span><span data-variant="react">Terminal</span></span><button type="button" class="copy">Copy</button></div><pre><code><span class="ln">cd src/web</span><span class="ln">npm run dev</span></code></pre></div><p class="note" data-stack="dotnet">The API logs <code>Failed to determine the https port for redirect</code>. That warning is expected on the http profile.</p></li><li class="step" id="step-small-commit"><div class="step-head"><label class="tick"><input type="checkbox" id="chk-small-commit" data-check="small-commit"><span class="box" aria-hidden="true"></span><span class="step-title">Commit the small structure</span></label></div><div class="term"><div class="term-bar"><span class="term-label"><span data-shell-only="ps">PowerShell</span><span data-shell-only="sh">Terminal</span></span><button type="button" class="copy">Copy</button></div><pre><code><span class="ln">git add -A</span><span class="ln">git commit -m &quot;Small project structure&quot;</span></code></pre></div></li></ol></section><section class="seg" id="large" data-index="5" style="--segn:'6'"><header class="seg-head"><div class="seg-num">06</div><div><h2>Structure for a large project</h2><div class="seg-time"><span data-win="5">0:33–0:42</span> · <span data-mins="5">9 min</span></div></div></header><p class="intro" data-variant="full">Organize by feature and make the boundaries real. In .NET the boundaries are separate projects, and the compiler enforces which project may reference which. In React they are feature folders with one public entry file.</p><p class="intro" data-variant="react">Organize by feature and make the boundaries real. Each feature gets a folder with everything it needs and one public entry file; shared code moves into its own folder.</p><p class="intro" data-variant="dotnet">Organize by feature and make the boundaries real. The boundaries become separate projects, and the compiler enforces which project may reference which.</p><aside class="teacher teacher-panel" aria-label="Teacher notes"><div class="tlabel">Teacher notes</div><dl><div><dt>Say</dt><dd><ul><li>Large-project rule: organize by feature and make the boundaries real.</li><li>Live demo for .NET: add <code>using ClassroomApp.Infrastructure.Courses;</code> to the top of <code>GetCourses.cs</code> and build. The compiler refuses with CS0234, because Application doesn't reference Infrastructure. The boundary is enforced, not just agreed.</li><li>In React nothing stops a deep import yet. Real projects add a lint rule so the boundary survives new teammates.</li></ul></dd></div><div><dt>Point out</dt><dd><code>CoursesPage.tsx</code> moved without changing a line, and the unit test runs without a server or a database. Those two facts are the payoff of the large structure.</dd></div><div><dt>Watch for</dt><dd><ul><li><code>git mv</code> reports that the destination directory does not exist: the folder step was skipped.</li><li>A blank page or a build error about <code>./App.tsx</code>: <code>main.tsx</code> still has the old import.</li></ul></dd></div><div><dt>If you're behind</dt><dd>Students do the React half while you demo the .NET half on the projector. The .NET commands become homework, since they are all on this page.</dd></div></dl></aside><div class="concept"><div class="trees"><figure class="tree" data-stack="dotnet"><figcaption>.NET solution</figcaption><div class="tree-rows"><span class="tn">ClassroomApp.slnx</span><span class="tc"></span><span class="tn">src/</span><span class="tc"></span><span class="tn">├── ClassroomApp.Domain/</span><span class="tc">business objects; references nothing</span><span class="tn">│   └── Courses/Course.cs</span><span class="tc"></span><span class="tn">├── ClassroomApp.Application/</span><span class="tc">use cases and the interfaces they need</span><span class="tn">│   └── Courses/GetCourses.cs, ICourseRepository.cs</span><span class="tc"></span><span class="tn">├── ClassroomApp.Infrastructure/</span><span class="tc">data access; implements those interfaces</span><span class="tn">│   └── Courses/InMemoryCourseRepository.cs</span><span class="tc"></span><span class="tn">└── ClassroomApp.Api/</span><span class="tc">endpoints and Program.cs wiring</span><span class="tn">    ├── Endpoints/CourseEndpoints.cs</span><span class="tc"></span><span class="tn">    └── Program.cs</span><span class="tc"></span><span class="tn">tests/</span><span class="tc"></span><span class="tn">└── ClassroomApp.UnitTests/</span><span class="tc">tests use cases with no server or database</span><span class="tn">    └── GetCoursesTests.cs</span><span class="tc"></span></div></figure><figure class="tree" data-stack="react"><figcaption>React</figcaption><div class="tree-rows"><span class="tn">src/web/src/</span><span class="tc"></span><span class="tn">├── app/</span><span class="tc">the shell: App, later routes and providers</span><span class="tn">│   └── App.tsx</span><span class="tc"></span><span class="tn">├── features/</span><span class="tc">one folder per business feature</span><span class="tn">│   └── courses/</span><span class="tc"></span><span class="tn">│       ├── api/getCourses.ts</span><span class="tc"></span><span class="tn">│       ├── components/CourseCard.tsx</span><span class="tc"></span><span class="tn">│       ├── hooks/useCourses.ts</span><span class="tc"></span><span class="tn">│       ├── pages/CoursesPage.tsx</span><span class="tc"></span><span class="tn">│       ├── types.ts</span><span class="tc"></span><span class="tn">│       └── index.ts</span><span class="tc">the feature's public API</span><span class="tn">├── shared/</span><span class="tc">code any feature may use</span><span class="tn">│   ├── lib/http.ts</span><span class="tc"></span><span class="tn">│   └── ui/</span><span class="tc">shared components, once you have some</span><span class="tn">├── main.tsx</span><span class="tc"></span><span class="tn">└── index.css</span><span class="tc"></span></div></figure></div><ul class="rules"><li data-stack="dotnet">Domain references nothing, so business rules never depend on a database or the web.</li><li data-stack="dotnet">Application declares interfaces for what it needs; Infrastructure implements them. Swapping memory for EF Core changes one project.</li><li data-stack="dotnet">Api references Application and Infrastructure, and <code>Program.cs</code> is the only place that connects them.</li><li data-stack="react">A feature imports from <code>shared/</code>, never from another feature's folders.</li><li data-stack="react">Code outside a feature imports only its <code>index.ts</code>. <code>shared/</code> never imports from <code>features/</code> or <code>app/</code>.</li></ul><div class="diagrams"><figure class="diagram" data-stack="dotnet"><svg viewBox="0 0 600 312" role="img" aria-label="Project references in the large .NET structure. Api references Application and Infrastructure. Infrastructure references Application. UnitTests references Application. Application references Domain. Domain references nothing.">
+<defs><marker id="ah-net" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dg-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<path class="dg-edge dashed" d="M200,44 H398" marker-end="url(#ah-net)"/><text class="dg-elabel" x="300" y="36" text-anchor="middle">wires up in Program.cs</text>
+<path class="dg-edge" d="M120,68 V104 H270 V134" marker-end="url(#ah-net)"/><text class="dg-elabel" x="195" y="96" text-anchor="middle">calls use cases</text>
+<path class="dg-edge" d="M480,68 V104 H330 V134" marker-end="url(#ah-net)"/><text class="dg-elabel" x="405" y="96" text-anchor="middle">implements interfaces</text>
+<path class="dg-edge" d="M160,160 H218" marker-end="url(#ah-net)"/><text class="dg-elabel" x="189" y="152" text-anchor="middle">tests</text>
+<path class="dg-edge" d="M300,184 V250" marker-end="url(#ah-net)"/><text class="dg-elabel" x="308" y="222">uses Course</text>
+<rect class="dg-box" x="40" y="20" width="160" height="48" rx="6"/><text class="dg-label" x="120" y="41" text-anchor="middle">Api</text><text class="dg-sub" x="120" y="57" text-anchor="middle">endpoints, Program.cs</text><rect class="dg-box" x="400" y="20" width="160" height="48" rx="6"/><text class="dg-label" x="480" y="41" text-anchor="middle">Infrastructure</text><text class="dg-sub" x="480" y="57" text-anchor="middle">in-memory repository</text><rect class="dg-box" x="0" y="136" width="160" height="48" rx="6"/><text class="dg-label" x="80" y="157" text-anchor="middle">UnitTests</text><text class="dg-sub" x="80" y="173" text-anchor="middle">fake repository</text><rect class="dg-box" x="220" y="136" width="160" height="48" rx="6"/><text class="dg-label" x="300" y="157" text-anchor="middle">Application</text><text class="dg-sub" x="300" y="173" text-anchor="middle">use cases, interfaces</text><rect class="dg-core" x="220" y="252" width="160" height="48" rx="6"/><text class="dg-label" x="300" y="273" text-anchor="middle">Domain</text><text class="dg-sub" x="300" y="289" text-anchor="middle">references nothing</text>
+</svg><figcaption>Arrows point at what each project references. Every path ends at Domain, and Domain points at nothing, so business rules never depend on the database or the web.</figcaption></figure><figure class="diagram" data-stack="react"><svg viewBox="0 0 600 300" role="img" aria-label="Allowed imports in the large React structure. app imports each feature through its index.ts. Features import shared. features/courses never imports features/students, and the other way round.">
+<defs><marker id="ah-web" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dg-head" d="M0,0 L10,5 L0,10 z"/></marker><marker id="ah-bad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dg-head bad" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<path class="dg-edge" d="M270,68 V96 H120 V122" marker-end="url(#ah-web)"/><text class="dg-elabel" x="195" y="88" text-anchor="middle">imports index.ts</text>
+<path class="dg-edge" d="M330,68 V96 H480 V122" marker-end="url(#ah-web)"/><text class="dg-elabel" x="405" y="88" text-anchor="middle">imports index.ts</text>
+<path class="dg-edge" d="M120,172 V256 H218" marker-end="url(#ah-web)"/><text class="dg-elabel" x="170" y="248" text-anchor="middle">imports</text>
+<path class="dg-edge" d="M480,172 V256 H382" marker-end="url(#ah-web)"/><text class="dg-elabel" x="430" y="248" text-anchor="middle">imports</text>
+<path class="dg-edge bad" d="M202,148 H398" marker-start="url(#ah-bad)" marker-end="url(#ah-bad)"/><text class="dg-elabel bad" x="300" y="140" text-anchor="middle">never</text><path class="dg-edge bad" style="stroke-dasharray:none;stroke-width:2" d="M293,141 L307,155 M307,141 L293,155"/>
+<rect class="dg-box" x="220" y="20" width="160" height="48" rx="6"/><text class="dg-label" x="300" y="41" text-anchor="middle">app/</text><text class="dg-sub" x="300" y="57" text-anchor="middle">App.tsx</text><rect class="dg-box" x="40" y="124" width="160" height="48" rx="6"/><text class="dg-label" x="120" y="145" text-anchor="middle">features/courses</text><text class="dg-sub" x="120" y="161" text-anchor="middle">index.ts is the door</text><rect class="dg-box" x="400" y="124" width="160" height="48" rx="6"/><text class="dg-label" x="480" y="145" text-anchor="middle">features/students</text><text class="dg-sub" x="480" y="161" text-anchor="middle">the next feature</text><rect class="dg-box" x="220" y="232" width="160" height="48" rx="6"/><text class="dg-label" x="300" y="253" text-anchor="middle">shared/</text><text class="dg-sub" x="300" y="269" text-anchor="middle">lib, ui</text>
+</svg><figcaption>Arrows point at what a folder may import. Features talk to the shell and to shared/, never to each other.</figcaption></figure></div></div><ol class="steps"><li class="step" id="step-large-branch"><div class="step-head"><label class="tick"><input type="checkbox" id="chk-large-branch" data-check="large-branch"><span class="box" aria-hidden="true"></span><span class="step-title">Start a branch from small</span></label></div><p class="step-text">This branch starts from <code>small</code>: you are restructuring a project that grew, which is how it happens on real teams.</p><div class="term"><div class="term-bar"><span class="term-label"><span data-shell-only="ps">PowerShell</span><span data-shell-only="sh">Terminal</span></span><button type="button" class="copy">Copy</button></div><pre><code><span class="ln">git switch -c large</span></code></pre></div></li><li class="step" data-stack="react" id="step-large-web-folders"><div class="step-head"><label class="tick"><input type="checkbox" id="chk-large-web-folders" data-check="large-web-folders"><span class="box" aria-hidden="true"></span><span class="step-title">Make the feature folders</span></label><span class="stack-tag" data-s="react">React</span></div><div class="term"><div class="term-bar"><span class="term-label"><span data-shell-only="ps">PowerShell</span><span data-shell-only="sh">Terminal</span></span><button type="button" class="copy">Copy</button></div><pre><code><span class="ln">cd src/web/src</span><span class="ln" data-shell-only="ps">mkdir app, features/courses/api, features/courses/components, features/courses/hooks, features/courses/pages, shared/lib, shared/ui</span><span class="ln" data-shell-only="sh">mkdir -p app features/courses/api features/courses/components features/courses/hooks features/courses/pages shared/lib shared/ui</span></code></pre></div></li><li class="step" data-stack="react" id="step-large-web-move"><div class="step-head"><label class="tick"><input type="checkbox" id="chk-large-web-move" data-check="large-web-move"><span class="box" aria-hidden="true"></span><span class="step-title">Move each file to its new home</span></label><span class="stack-tag" data-s="react">React</span></div><p class="step-text"><code>git mv</code> keeps each file's history. It leaves the old folders behind empty, so remove them. Git doesn't store empty folders, which is why <code>shared/ui</code> won't appear in a commit until it holds a component.</p><div class="term"><div class="term-bar"><span class="term-label"><span data-shell-only="ps">PowerShell</span><span data-shell-only="sh">Terminal</span></span><button type="button" class="copy">Copy</button></div><pre><code><span class="ln">git mv App.tsx app/App.tsx</span><span class="ln">git mv components/CourseCard.tsx features/courses/components/CourseCard.tsx</span><span class="ln">git mv hooks/useCourses.ts features/courses/hooks/useCourses.ts</span><span class="ln">git mv pages/CoursesPage.tsx features/courses/pages/CoursesPage.tsx</span><span class="ln">git mv types/course.ts features/courses/types.ts</span><span class="ln">git mv lib/api.ts shared/lib/http.ts</span><span class="ln" data-shell-only="ps">rmdir components, hooks, lib, pages, types</span><span class="ln" data-shell-only="sh">rmdir components hooks lib pages types</span><span class="ln">cd ../../..</span></code></pre></div></li><li class="step" data-stack="react" id="step-large-web-files"><div class="step-head"><label class="tick"><input type="checkbox" id="chk-large-web-files" data-check="large-web-files"><span class="box" aria-hidden="true"></span><span class="step-title">Fix the imports</span></label><span class="stack-tag" data-s="react">React</span></div><p class="step-text"><code>CoursesPage.tsx</code> moved without a single change, because its imports point inside its own feature. Everything else gets a new import path, and the feature gets an <code>index.ts</code> that is its public API.</p><div class="files"><div class="file"><div class="file-bar"><span class="kind kind-new">New file</span><code class="file-path">src/web/src/features/courses/api/getCourses.ts</code><button type="button" class="copy">Copy</button></div><pre><code class="block">import { getJson } from '../../../shared/lib/http'
+import type { Course } from '../types'
+
+export function getCourses() {
+  return getJson&lt;Course[]&gt;('/api/courses')
+}</code></pre></div><div class="file"><div class="file-bar"><span class="kind kind-replace">Replace file</span><code class="file-path">src/web/src/features/courses/hooks/useCourses.ts</code><button type="button" class="copy">Copy</button></div><pre><code class="block">import { useEffect, useState } from 'react'
+import { getCourses } from '../api/getCourses'
+import type { Course } from '../types'
+
+export function useCourses() {
+  const [courses, setCourses] = useState&lt;Course[]&gt;([])
+  const [error, setError] = useState&lt;string | null&gt;(null)
+
+  useEffect(() =&gt; {
+    getCourses()
+      .then(setCourses)
+      .catch((e: Error) =&gt; setError(e.message))
+  }, [])
+
+  return { courses, error }
+}</code></pre></div><div class="file"><div class="file-bar"><span class="kind kind-replace">Replace file</span><code class="file-path">src/web/src/features/courses/components/CourseCard.tsx</code><button type="button" class="copy">Copy</button></div><pre><code class="block">import type { Course } from '../types'
+
+export function CourseCard({ course }: { course: Course }) {
+  return (
+    &lt;li className=&quot;card&quot;&gt;
+      &lt;strong&gt;{course.title}&lt;/strong&gt;
+      &lt;span&gt;{course.teacher}&lt;/span&gt;
+    &lt;/li&gt;
+  )
+}</code></pre></div><div class="file"><div class="file-bar"><span class="kind kind-new">New file</span><code class="file-path">src/web/src/features/courses/index.ts</code><button type="button" class="copy">Copy</button></div><pre><code class="block">// The public API of the courses feature.
+// Code outside features/courses imports from this file only.
+export { CoursesPage } from './pages/CoursesPage'
+export type { Course } from './types'</code></pre></div><div class="file"><div class="file-bar"><span class="kind kind-replace">Replace file</span><code class="file-path">src/web/src/app/App.tsx</code><button type="button" class="copy">Copy</button></div><pre><code class="block">import { CoursesPage } from '../features/courses'
+
+function App() {
+  return &lt;CoursesPage /&gt;
+}
+
+export default App</code></pre></div><div class="file"><div class="file-bar"><span class="kind kind-edit">Edit one line</span><code class="file-path">src/web/src/main.tsx</code><button type="button" class="copy" data-text="import App from './app/App.tsx'">Copy new line</button></div><div class="edit-body"><div class="edit-hint">Find the first line, change it to the second.</div><div class="edit-row old"><span>−</span><code>import App from './App.tsx'</code></div><div class="edit-row new"><span>+</span><code>import App from './app/App.tsx'</code></div></div></div></div></li><li class="step" data-stack="dotnet" id="step-large-api-projects"><div class="step-head"><label class="tick"><input type="checkbox" id="chk-large-api-projects" data-check="large-api-projects"><span class="box" aria-hidden="true"></span><span class="step-title">Add the projects and their references</span></label><span class="stack-tag" data-s="dotnet">.NET</span></div><p class="step-text">Three class libraries and a test project. The <code>reference</code> lines are the architecture: they decide which project may use which.</p><div class="term"><div class="term-bar"><span class="term-label"><span data-shell-only="ps">PowerShell</span><span data-shell-only="sh">Terminal</span></span><button type="button" class="copy">Copy</button></div><pre><code><span class="ln">dotnet new classlib -n ClassroomApp.Domain -o src/ClassroomApp.Domain</span><span class="ln">dotnet new classlib -n ClassroomApp.Application -o src/ClassroomApp.Application</span><span class="ln">dotnet new classlib -n ClassroomApp.Infrastructure -o src/ClassroomApp.Infrastructure</span><span class="ln">dotnet new xunit -n ClassroomApp.UnitTests -o tests/ClassroomApp.UnitTests</span><span class="ln">dotnet sln add src/ClassroomApp.Domain src/ClassroomApp.Application src/ClassroomApp.Infrastructure tests/ClassroomApp.UnitTests</span><span class="ln">dotnet add src/ClassroomApp.Application reference src/ClassroomApp.Domain</span><span class="ln">dotnet add src/ClassroomApp.Infrastructure reference src/ClassroomApp.Application</span><span class="ln">dotnet add src/ClassroomApp.Api reference src/ClassroomApp.Application src/ClassroomApp.Infrastructure</span><span class="ln">dotnet add tests/ClassroomApp.UnitTests reference src/ClassroomApp.Application</span></code></pre></div></li><li class="step" data-stack="dotnet" id="step-large-api-move"><div class="step-head"><label class="tick"><input type="checkbox" id="chk-large-api-move" data-check="large-api-move"><span class="box" aria-hidden="true"></span><span class="step-title">Delete the samples and move the files</span></label><span class="stack-tag" data-s="dotnet">.NET</span></div><p class="step-text">Every new project arrives with a sample file (<code>Class1.cs</code>, <code>UnitTest1.cs</code>). Same habit as before: delete samples. Then move the model into Domain and the store into Infrastructure.</p><div class="term"><div class="term-bar"><span class="term-label"><span data-shell-only="ps">PowerShell</span><span data-shell-only="sh">Terminal</span></span><button type="button" class="copy">Copy</button></div><pre><code><span class="ln" data-shell-only="ps">Remove-Item src/ClassroomApp.Domain/Class1.cs, src/ClassroomApp.Application/Class1.cs, src/ClassroomApp.Infrastructure/Class1.cs, tests/ClassroomApp.UnitTests/UnitTest1.cs</span><span class="ln" data-shell-only="sh">rm src/ClassroomApp.Domain/Class1.cs src/ClassroomApp.Application/Class1.cs src/ClassroomApp.Infrastructure/Class1.cs tests/ClassroomApp.UnitTests/UnitTest1.cs</span><span class="ln" data-shell-only="ps">mkdir src/ClassroomApp.Domain/Courses, src/ClassroomApp.Application/Courses, src/ClassroomApp.Infrastructure/Courses</span><span class="ln" data-shell-only="sh">mkdir src/ClassroomApp.Domain/Courses src/ClassroomApp.Application/Courses src/ClassroomApp.Infrastructure/Courses</span><span class="ln">git mv src/ClassroomApp.Api/Models/Course.cs src/ClassroomApp.Domain/Courses/Course.cs</span><span class="ln">git mv src/ClassroomApp.Api/Data/CourseStore.cs src/ClassroomApp.Infrastructure/Courses/InMemoryCourseRepository.cs</span><span class="ln" data-shell-only="ps">rmdir src/ClassroomApp.Api/Models, src/ClassroomApp.Api/Data</span><span class="ln" data-shell-only="sh">rmdir src/ClassroomApp.Api/Models src/ClassroomApp.Api/Data</span></code></pre></div></li><li class="step" data-stack="dotnet" id="step-large-api-files"><div class="step-head"><label class="tick"><input type="checkbox" id="chk-large-api-files" data-check="large-api-files"><span class="box" aria-hidden="true"></span><span class="step-title">Give each layer its code</span></label><span class="stack-tag" data-s="dotnet">.NET</span></div><p class="step-text">Application declares what it needs (<code>ICourseRepository</code>) and Infrastructure provides it. <code>Program.cs</code> is the one place that connects the two. The test checks the use case with a fake, with no database and no web server.</p><div class="files"><div class="file"><div class="file-bar"><span class="kind kind-replace">Replace file</span><code class="file-path">src/ClassroomApp.Domain/Courses/Course.cs</code><button type="button" class="copy">Copy</button></div><pre><code class="block">namespace ClassroomApp.Domain.Courses;
+
+public record Course(int Id, string Title, string Teacher);</code></pre></div><div class="file"><div class="file-bar"><span class="kind kind-new">New file</span><code class="file-path">src/ClassroomApp.Application/Courses/ICourseRepository.cs</code><button type="button" class="copy">Copy</button></div><pre><code class="block">using ClassroomApp.Domain.Courses;
+
+namespace ClassroomApp.Application.Courses;
+
+// Application says WHAT it needs. Infrastructure decides HOW.
+public interface ICourseRepository
+{
+    IReadOnlyList&lt;Course&gt; GetAll();
+}</code></pre></div><div class="file"><div class="file-bar"><span class="kind kind-new">New file</span><code class="file-path">src/ClassroomApp.Application/Courses/GetCourses.cs</code><button type="button" class="copy">Copy</button></div><pre><code class="block">using ClassroomApp.Domain.Courses;
+
+namespace ClassroomApp.Application.Courses;
+
+// One use case. Business rules for listing courses live here.
+public class GetCourses(ICourseRepository courses)
+{
+    public IReadOnlyList&lt;Course&gt; Handle() =&gt; courses.GetAll();
+}</code></pre></div><div class="file"><div class="file-bar"><span class="kind kind-replace">Replace file</span><code class="file-path">src/ClassroomApp.Infrastructure/Courses/InMemoryCourseRepository.cs</code><button type="button" class="copy">Copy</button></div><pre><code class="block">using ClassroomApp.Application.Courses;
+using ClassroomApp.Domain.Courses;
+
+namespace ClassroomApp.Infrastructure.Courses;
+
+// Today a list in memory, later EF Core. Only this project changes.
+public class InMemoryCourseRepository : ICourseRepository
+{
+    private readonly List&lt;Course&gt; _courses =
+    [
+        new(1, &quot;Software Architecture&quot;, &quot;Ms. Rivera&quot;),
+        new(2, &quot;Intro to React&quot;, &quot;Mr. Chen&quot;),
+    ];
+
+    public IReadOnlyList&lt;Course&gt; GetAll() =&gt; _courses;
+}</code></pre></div><div class="file"><div class="file-bar"><span class="kind kind-replace">Replace file</span><code class="file-path">src/ClassroomApp.Api/Endpoints/CourseEndpoints.cs</code><button type="button" class="copy">Copy</button></div><pre><code class="block">using ClassroomApp.Application.Courses;
+
+namespace ClassroomApp.Api.Endpoints;
+
+public static class CourseEndpoints
+{
+    public static void MapCourseEndpoints(this IEndpointRouteBuilder app)
+    {
+        var group = app.MapGroup(&quot;/api/courses&quot;);
+
+        group.MapGet(&quot;/&quot;, (GetCourses getCourses) =&gt; getCourses.Handle());
+    }
+}</code></pre></div><div class="file"><div class="file-bar"><span class="kind kind-replace">Replace file</span><code class="file-path">src/ClassroomApp.Api/Program.cs</code><button type="button" class="copy">Copy</button></div><pre><code class="block">using ClassroomApp.Api.Endpoints;
+using ClassroomApp.Application.Courses;
+using ClassroomApp.Infrastructure.Courses;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddOpenApi();
+
+// Program.cs is the one place that connects interfaces to implementations.
+builder.Services.AddSingleton&lt;ICourseRepository, InMemoryCourseRepository&gt;();
+builder.Services.AddScoped&lt;GetCourses&gt;();
+
+var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+}
+
+app.UseHttpsRedirection();
+
+app.MapGet(&quot;/api/health&quot;, () =&gt; Results.Ok(new { status = &quot;ok&quot; }));
+app.MapCourseEndpoints();
+
+app.Run();</code></pre></div><div class="file"><div class="file-bar"><span class="kind kind-new">New file</span><code class="file-path">tests/ClassroomApp.UnitTests/GetCoursesTests.cs</code><button type="button" class="copy">Copy</button></div><pre><code class="block">using ClassroomApp.Application.Courses;
+using ClassroomApp.Domain.Courses;
+
+namespace ClassroomApp.UnitTests;
+
+public class GetCoursesTests
+{
+    [Fact]
+    public void Returns_every_course_from_the_repository()
+    {
+        var repository = new FakeCourseRepository([new(1, &quot;Testing 101&quot;, &quot;Dr. Okafor&quot;)]);
+
+        var courses = new GetCourses(repository).Handle();
+
+        Assert.Single(courses);
+        Assert.Equal(&quot;Testing 101&quot;, courses[0].Title);
+    }
+
+    // No database and no web server: the use case is tested on its own.
+    private class FakeCourseRepository(IReadOnlyList&lt;Course&gt; courses) : ICourseRepository
+    {
+        public IReadOnlyList&lt;Course&gt; GetAll() =&gt; courses;
+    }
+}</code></pre></div></div></li><li class="step" id="step-large-check"><div class="step-head"><label class="tick"><input type="checkbox" id="chk-large-check" data-check="large-check"><span class="box" aria-hidden="true"></span><span class="step-title">Check, then commit</span></label></div><p class="step-text" data-variant="full">Expected: <code>Build succeeded</code>, one test passed, and Vite's <code>built in</code>. Run the app again if you like: it looks exactly the same, which is the point.</p><p class="step-text" data-variant="react">Expected: Vite's <code>built in</code>. Run the app again if you like: it looks exactly the same, which is the point.</p><p class="step-text" data-variant="dotnet">Expected: <code>Build succeeded</code> and one test passed. Run the API again if you like: it answers exactly the same, which is the point.</p><div class="term"><div class="term-bar"><span class="term-label"><span data-shell-only="ps">PowerShell</span><span data-shell-only="sh">Terminal</span></span><button type="button" class="copy">Copy</button></div><pre><code><span class="ln" data-stack="dotnet">dotnet build</span><span class="ln" data-stack="dotnet">dotnet test</span><span class="ln" data-stack="react">cd src/web</span><span class="ln" data-stack="react">npm run build</span><span class="ln" data-stack="react">cd ../..</span><span class="ln">git add -A</span><span class="ln">git commit -m &quot;Large project structure&quot;</span></code></pre></div></li></ol></section><section class="seg" id="wrap" data-index="6" style="--segn:'7'"><header class="seg-head"><div class="seg-num">07</div><div><h2>Compare and decide</h2><div class="seg-time"><span data-win="6">0:42–0:45</span> · <span data-mins="6">3 min</span></div></div></header><p class="intro">Same features, two structures. Look at what moved, then decide when you would switch.</p><aside class="teacher teacher-panel" aria-label="Teacher notes"><div class="tlabel">Teacher notes</div><dl><div><dt>Say</dt><dd><ul><li>Start small. Switch when it hurts, and use the signals on screen to notice when it does.</li><li>Both branches do exactly the same thing. Structure changed where code lives and who may depend on whom, not what the app does.</li></ul></dd></div><div><dt>Ask</dt><dd>Exit ticket: three questions on paper or in the class chat. Collect them at the door.</dd></div></dl></aside><ol class="steps"><li class="step" id="step-wrap-diff"><div class="step-head"><label class="tick"><input type="checkbox" id="chk-wrap-diff" data-check="wrap-diff"><span class="box" aria-hidden="true"></span><span class="step-title">Compare the two branches</span></label></div><p class="step-text">A line like <code>src/web/src/{ =&gt; app}/App.tsx</code> means the file moved. Lines with <code>+</code> and <code>-</code> counts are files whose contents changed.</p><div class="term"><div class="term-bar"><span class="term-label"><span data-shell-only="ps">PowerShell</span><span data-shell-only="sh">Terminal</span></span><button type="button" class="copy">Copy</button></div><pre><code><span class="ln">git diff --stat -M small large</span></code></pre></div></li></ol><div class="signals"><h3>Switch from small to large when…</h3><ul><li>More than one team, or more than four or five people, work in the same app.</li><li>A folder such as <code>components/</code> or <code>Services/</code> passes 15 to 20 files.</li><li>One feature change touches four or more folders.</li><li>People keep editing the same files and hitting merge conflicts.</li><li>You want to test business rules without a database or a browser.</li></ul><p>Until then, stay small: fewer projects and folders means faster changes.</p></div><div class="exit"><h3>Exit ticket</h3><ol><li>Name one file you deleted and one you changed. Why each?<div class="teacher">Answer: Deleted: <code>App.css</code>, <code>src/assets</code>, <code>icons.svg</code> or the web README, because they only served the demo. Changed: <code>Program.cs</code> (removed WeatherForecast), <code>launchSettings.json</code> (fixed port) or <code>App.tsx</code> (replaced the demo). Any pair with a sound reason counts.</div></li><li>Two developers, six screens, one API. Small structure or large, and why?<div class="teacher">Answer: Small. The large structure's extra projects and folders cost time on every change, and one small team has no boundaries to protect yet.</div></li><li data-stack="react">In the large React structure, <code>features/students</code> needs <code>CourseCard</code>. May it import <code>features/courses/components/CourseCard</code>?<div class="teacher">Answer: No. Import it from <code>features/courses</code>, the feature's <code>index.ts</code>, if courses exports it. If several features need it, move it to <code>shared/ui</code>.</div></li><li data-stack="dotnet">Why does <code>GetCourses</code> depend on <code>ICourseRepository</code> instead of <code>InMemoryCourseRepository</code>?<div class="teacher">Answer: So Application never references Infrastructure. You can swap in EF Core, or a fake in a test, without touching the use case.</div></li></ol></div></section>
+<details class="trouble" id="trouble"><summary>Troubleshooting</summary><dl><div><dt><code>dotnet</code> or <code>node</code> is not recognized</dt><dd>Install it, then close and reopen the terminal so it picks up the new PATH.</dd></div><div><dt><code>code</code> is not recognized on a Mac</dt><dd>In VS Code open the Command Palette and run Shell Command: Install 'code' command in PATH. Or use File, Open Folder.</dd></div><div data-stack="react"><dt>PowerShell: running scripts is disabled on this system</dt><dd>Run <code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code> once, then reopen the terminal.</dd></div><div><dt>Windows Terminal warns about pasting several lines</dt><dd>Choose Paste anyway. The lines run one after another.</dd></div><div data-stack="dotnet"><dt><code>dotnet new sln</code> made <code>ClassroomApp.sln</code>, not <code>.slnx</code></dt><dd>Your SDK is older than .NET 10. Everything still works; check <code>dotnet --version</code>.</dd></div><div data-stack="react"><dt>Vite asks which linter to use, or whether to install and start now</dt><dd>A flag got lost while copying. Choose Oxlint, then No.</dd></div><div><dt>Git says: Please tell me who you are</dt><dd>Run <code>git config --global user.name &quot;Your Name&quot;</code> and <code>git config --global user.email &quot;you@example.com&quot;</code>, then commit again.</dd></div><div data-stack="react"><dt><code>'Course' is a type and must be imported using a type-only import</code></dt><dd>Write <code>import type { Course }</code>. The template turns on <code>verbatimModuleSyntax</code>.</dd></div><div data-stack="dotnet"><dt><code>Failed to determine the https port for redirect</code></dt><dd>Expected on the http profile: HTTPS redirection has no HTTPS port to send you to locally. It is a warning, not an error.</dd></div><div data-stack="react"><dt>The page says <code>Could not load courses: 502 Bad Gateway</code></dt><dd>The API isn't running. Start it in a second terminal with <code>dotnet run --project src/ClassroomApp.Api</code>.</dd></div><div data-stack="dotnet"><dt>Port 5080 is already in use</dt><dd>Pick another port in <code>launchSettings.json</code> and use the same number in <code>vite.config.ts</code>.</dd></div><div><dt><code>git mv</code>: destination directory does not exist</dt><dd>Run the folder step first, then repeat the moves.</dd></div></dl></details>
+<p class="foot">Every command and file on this page was run on the .NET 10.0.113 SDK, Node.js 22, create-vite 9.3.1 with Vite 8.3 and React 19.3, and PowerShell 7.6, in October 2026. Newer template versions may differ in small ways.</p>
+</main>
+</div>
+</div>
+<script type="application/json" id="lesson-data">{"tracks":{"full":{"label":"Full stack","minutes":[3,7,8,6,9,9,3]},"react":{"label":"React only","minutes":[3,5,7,6,9,9,6]},"dotnet":{"label":".NET only","minutes":[3,5,7,6,9,10,5]}},"titles":["Why structure matters","Create the project","Tour the template","Remove what you don't need","Structure for a small project","Structure for a large project","Compare and decide"]}</script>
+<script>
+(function () {
+  "use strict";
+  var root = document.documentElement;
+  var DATA = JSON.parse(document.getElementById("lesson-data").textContent);
+  var KEY = "scs:";
+
+  function load(k, d) {
+    try {
+      var v = localStorage.getItem(KEY + k);
+      return v == null ? d : JSON.parse(v);
+    } catch (e) {
+      return d;
+    }
+  }
+  function save(k, v) {
+    try {
+      localStorage.setItem(KEY + k, JSON.stringify(v));
+    } catch (e) {}
+  }
+  function $all(sel, el) {
+    return Array.prototype.slice.call((el || document).querySelectorAll(sel));
+  }
+  function track() {
+    return root.getAttribute("data-track") || "full";
+  }
+  function shell() {
+    return root.getAttribute("data-shell") || "sh";
+  }
+  function mmss(ms) {
+    var s = Math.max(0, Math.floor(ms / 1000));
+    return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+  }
+
+  /* ---------- segmented controls ---------- */
+  function syncPressed() {
+    $all("[data-set]").forEach(function (b) {
+      b.setAttribute(
+        "aria-pressed",
+        String(root.getAttribute("data-" + b.dataset.set) === b.dataset.value),
+      );
+    });
+    var t = document.getElementById("teacher-toggle");
+    t.setAttribute(
+      "aria-pressed",
+      String(root.getAttribute("data-teacher") === "on"),
+    );
+  }
+  $all("[data-set]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      root.setAttribute("data-" + b.dataset.set, b.dataset.value);
+      save(b.dataset.set, b.dataset.value);
+      syncPressed();
+      if (b.dataset.set === "track") {
+        renderTimes();
+        tick();
+        scoreTour();
+      }
+    });
+  });
+  document
+    .getElementById("teacher-toggle")
+    .addEventListener("click", function () {
+      var on = root.getAttribute("data-teacher") !== "on";
+      root.setAttribute("data-teacher", on ? "on" : "off");
+      save("teacher", on ? "on" : "off");
+      syncPressed();
+    });
+
+  /* ---------- per-track time windows ---------- */
+  function minutes() {
+    return DATA.tracks[track()].minutes;
+  }
+  function renderTimes() {
+    var m = minutes(),
+      start = 0;
+    m.forEach(function (len, i) {
+      var win =
+        "0:" +
+        String(start).padStart(2, "0") +
+        "–0:" +
+        String(start + len).padStart(2, "0");
+      $all('[data-win="' + i + '"]').forEach(function (el) {
+        el.textContent = win;
+      });
+      $all('[data-mins="' + i + '"]').forEach(function (el) {
+        el.textContent = len + " min";
+      });
+      start += len;
+    });
+    var bar = document.getElementById("clock-track");
+    bar.innerHTML = "";
+    m.forEach(function (len) {
+      var s = document.createElement("span");
+      s.style.setProperty("--m", String(len));
+      s.appendChild(document.createElement("i"));
+      bar.appendChild(s);
+    });
+  }
+
+  /* ---------- class clock ---------- */
+  var TOTAL = 45 * 60 * 1000;
+  var clock = load("clock", { running: false, startedAt: 0, acc: 0 });
+  var timer = null,
+    wake = null;
+  function elapsed() {
+    return clock.acc + (clock.running ? Date.now() - clock.startedAt : 0);
+  }
+  function tick() {
+    var e = elapsed(),
+      m = minutes(),
+      start = 0,
+      cur = -1;
+    for (var i = 0; i < m.length; i++) {
+      var end = (start + m[i]) * 60000;
+      if (e < end) {
+        cur = i;
+        break;
+      }
+      start += m[i];
+    }
+    document.getElementById("clock-elapsed").textContent = mmss(e);
+    var now = document.getElementById("clock-now");
+    var started = clock.running || clock.acc > 0;
+    if (!started) {
+      now.textContent = "Press Start when class begins";
+      now.classList.remove("over");
+    } else if (cur === -1) {
+      now.textContent = "Over time by " + mmss(e - TOTAL);
+      now.classList.add("over");
+    } else {
+      var left = (start + m[cur]) * 60000 - e;
+      now.textContent =
+        "Now: " +
+        String(cur + 1).padStart(2, "0") +
+        " " +
+        DATA.titles[cur] +
+        " · " +
+        mmss(left) +
+        " left";
+      now.classList.remove("over");
+    }
+    var spans = document.getElementById("clock-track").children,
+      acc = 0;
+    for (var j = 0; j < spans.length; j++) {
+      var segMs = m[j] * 60000,
+        fill = Math.min(1, Math.max(0, (e - acc) / segMs));
+      spans[j].style.setProperty("--fill", (fill * 100).toFixed(1) + "%");
+      acc += segMs;
+    }
+    $all(".seg[data-index]").forEach(function (s) {
+      s.classList.toggle("now", started && Number(s.dataset.index) === cur);
+    });
+    $all(".outline li[data-index]").forEach(function (li) {
+      li.classList.toggle("now", started && Number(li.dataset.index) === cur);
+    });
+  }
+  function setRunning(run) {
+    var btn = document.getElementById("clock-btn");
+    if (run && !clock.running) {
+      clock.running = true;
+      clock.startedAt = Date.now();
+    }
+    if (!run && clock.running) {
+      clock.acc += Date.now() - clock.startedAt;
+      clock.running = false;
+    }
+    save("clock", clock);
+    btn.textContent = clock.running
+      ? "Pause"
+      : clock.acc > 0
+        ? "Resume"
+        : "Start class";
+    btn.classList.toggle("running", clock.running);
+    clearInterval(timer);
+    if (clock.running) {
+      timer = setInterval(tick, 1000);
+      try {
+        if (navigator.wakeLock)
+          navigator.wakeLock
+            .request("screen")
+            .then(function (l) {
+              wake = l;
+            })
+            .catch(function () {});
+      } catch (e) {}
+    } else if (wake) {
+      try {
+        wake.release();
+      } catch (e) {}
+      wake = null;
+    }
+    tick();
+  }
+  document.getElementById("clock-btn").addEventListener("click", function () {
+    setRunning(!clock.running);
+  });
+  document.getElementById("clock-reset").addEventListener("click", function () {
+    clock = { running: false, startedAt: 0, acc: 0 };
+    setRunning(false);
+  });
+
+  /* ---------- step checkboxes ---------- */
+  var checks = load("checks", {});
+  $all("input[data-check]").forEach(function (box) {
+    box.checked = !!checks[box.dataset.check];
+    box.addEventListener("change", function () {
+      checks[box.dataset.check] = box.checked;
+      save("checks", checks);
+    });
+  });
+
+  /* ---------- copy buttons ---------- */
+  function lineVisible(el) {
+    var s = el.getAttribute("data-stack"),
+      sh = el.getAttribute("data-shell-only"),
+      t = track();
+    if (s && t !== "full" && s !== t) return false;
+    if (sh && sh !== shell()) return false;
+    return true;
+  }
+  function flash(btn, text) {
+    var old = btn.dataset.label || btn.textContent;
+    btn.dataset.label = old;
+    btn.textContent = text;
+    btn.classList.add("done");
+    setTimeout(function () {
+      btn.textContent = old;
+      btn.classList.remove("done");
+    }, 1400);
+  }
+  function selectEl(el) {
+    try {
+      var r = document.createRange();
+      r.selectNodeContents(el);
+      var s = window.getSelection();
+      s.removeAllRanges();
+      s.addRange(r);
+    } catch (e) {}
+  }
+  document.addEventListener("click", function (ev) {
+    var btn = ev.target.closest ? ev.target.closest("button.copy") : null;
+    if (!btn) return;
+    var box = btn.closest(".term, .file"),
+      text = "",
+      target = null;
+    if (btn.hasAttribute("data-text")) {
+      text = btn.getAttribute("data-text");
+      target = box.querySelector(".edit-row.new code");
+    } else if (box.classList.contains("term")) {
+      text = $all(".ln", box)
+        .filter(lineVisible)
+        .map(function (l) {
+          return l.textContent;
+        })
+        .join("\n");
+      target = box.querySelector("pre");
+    } else {
+      target = box.querySelector("pre code");
+      text = target.textContent;
+    }
+    try {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flash(btn, "Copied");
+        },
+        function () {
+          selectEl(target);
+          flash(btn, "Press Ctrl+C");
+        },
+      );
+    } catch (e) {
+      selectEl(target);
+      flash(btn, "Press Ctrl+C");
+    }
+  });
+
+  /* ---------- tour quiz ---------- */
+  var tourEl = document.getElementById("tour-quiz");
+  var picks = load("tour", {});
+  function scoreTour() {
+    if (!tourEl) return;
+    var items = $all(".tour-item", tourEl).filter(function (li) {
+      var s = li.getAttribute("data-stack");
+      return !s || track() === "full" || s === track();
+    });
+    var right = 0,
+      answered = 0;
+    items.forEach(function (li) {
+      var p = picks[li.dataset.id];
+      if (p) answered++;
+      var ok = p === li.dataset.answer;
+      if (ok) right++;
+      li.classList.toggle("right", ok);
+      li.classList.toggle("wrong", !!p && !ok);
+    });
+    var el = document.getElementById("tour-score");
+    el.innerHTML = tourEl.classList.contains("revealed")
+      ? "<strong>" +
+        right +
+        " of " +
+        items.length +
+        "</strong> match the recommendation."
+      : "<strong>" + answered + " of " + items.length + "</strong> decided.";
+  }
+  if (tourEl) {
+    $all(".tour-item", tourEl).forEach(function (li) {
+      $all(".choices button", li).forEach(function (b) {
+        b.setAttribute(
+          "aria-pressed",
+          String(picks[li.dataset.id] === b.dataset.choice),
+        );
+        b.addEventListener("click", function () {
+          picks[li.dataset.id] = b.dataset.choice;
+          save("tour", picks);
+          $all(".choices button", li).forEach(function (x) {
+            x.setAttribute("aria-pressed", String(x === b));
+          });
+          scoreTour();
+        });
+      });
+    });
+    if (load("tourRevealed", false)) tourEl.classList.add("revealed");
+    document
+      .getElementById("tour-check")
+      .addEventListener("click", function () {
+        tourEl.classList.add("revealed");
+        save("tourRevealed", true);
+        scoreTour();
+      });
+    document
+      .getElementById("tour-reset")
+      .addEventListener("click", function () {
+        picks = {};
+        save("tour", picks);
+        tourEl.classList.remove("revealed");
+        save("tourRevealed", false);
+        $all(".choices button", tourEl).forEach(function (x) {
+          x.setAttribute("aria-pressed", "false");
+        });
+        scoreTour();
+      });
+  }
+
+  syncPressed();
+  renderTimes();
+  setRunning(clock.running);
+  scoreTour();
+})();
+
+</script>
+</body>
+</html>

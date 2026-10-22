@@ -17,6 +17,16 @@ ASP.NET Core, EF Core, Azure, SQL Server, Entra ID) and React.
 
 Progress is stored in the browser (`localStorage`). There is no backend.
 
+## Workshops
+
+Teacher-led, hands-on classes that sit alongside the self-paced app. Each one lives
+in `workshops/` with its tested reference solution, and its page is built into
+`public/workshops/`, so the site serves it next to the app.
+
+| Workshop                                                                                                                                 | Length | Page                                      |
+| ---------------------------------------------------------------------------------------------------------------------------------------- | ------ | ----------------------------------------- |
+| [Scaffold, Clean, Structure](workshops/01-scaffold-clean-structure/README.md): templates to small and large structures in .NET and React | 45 min | `workshops/scaffold-clean-structure.html` |
+
 ## Run it
 
 ```bash
@@ -29,6 +39,7 @@ npm test             # vitest: logic + content validation
 npm run typecheck
 npm run lint
 npm run build:single # dist/arch-lab.html, one self-contained file
+npm run build:workshops # regenerate the workshop pages in public/workshops/
 ```
 
 ## Deploying
