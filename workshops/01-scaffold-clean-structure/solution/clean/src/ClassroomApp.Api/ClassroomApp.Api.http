@@ -1,6 +1,0 @@
-@ClassroomApp.Api_HostAddress = http://localhost:5080
-
-GET {{ClassroomApp.Api_HostAddress}}/api/health
-Accept: application/json
-
-###

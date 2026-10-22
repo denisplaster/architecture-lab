@@ -19,13 +19,12 @@ Progress is stored in the browser (`localStorage`). There is no backend.
 
 ## Workshops
 
-Teacher-led, hands-on classes that sit alongside the self-paced app. Each one lives
-in `workshops/` with its tested reference solution, and its page is built into
-`public/workshops/`, so the site serves it next to the app.
+Teacher-led, hands-on classes that sit alongside the self-paced app. Each one is a
+single page in `public/workshops/`, so the site serves it next to the app.
 
-| Workshop                                                                                                                                 | Length | Page                                      |
-| ---------------------------------------------------------------------------------------------------------------------------------------- | ------ | ----------------------------------------- |
-| [Scaffold, Clean, Structure](workshops/01-scaffold-clean-structure/README.md): templates to small and large structures in .NET and React | 45 min | `workshops/scaffold-clean-structure.html` |
+| Workshop                                                                                                      | Length | Page                                     |
+| ------------------------------------------------------------------------------------------------------------- | ------ | ---------------------------------------- |
+| Starting a React Project: create a Vite app, structure it for a small and a large project, and choose plugins | 45 min | `workshops/react-project-structure.html` |
 
 ## Run it
 
@@ -39,7 +38,6 @@ npm test             # vitest: logic + content validation
 npm run typecheck
 npm run lint
 npm run build:single # dist/arch-lab.html, one self-contained file
-npm run build:workshops # regenerate the workshop pages in public/workshops/
 ```
 
 ## Deploying
